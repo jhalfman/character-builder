@@ -7,7 +7,7 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          New project!
+        <button type="button" class="btn btn-primary">Primary</button>
         </p>
         <a
           className="App-link"
