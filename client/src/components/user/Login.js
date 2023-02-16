@@ -56,23 +56,24 @@ const Login = () => {
   }
   
   return (
-    <div>
+    <div className="bg-primary-subtle border border-primary">
       {errors ? errors.map(error => <div className="errors" key={error}>{error}</div>) : null}
-      <form onSubmit={createNewUser}>
-        <div className="form-floating mb-3">
+      <form onSubmit={createNewUser} className="row">
+        <legend style={{textAlign: "center"}}>Create a New Account</legend>
+        <div className="form-floating mb-3" style={{width: "33%", marginLeft: "33%"}}>
           <input type="email" className="form-control" id="email" placeholder="name@email.com" onChange={editUserForm} value={newUserForm.email}/>
           <label htmlFor="email" className="form-label">Email Address</label>
         </div>
-        <div className="form-floating mb-3">
+        <div className="form-floating mb-3" style={{width: "33%", marginLeft: "33%"}}>
           <input type="text" className="form-control" id="username" placeholder="username" onChange={editUserForm} value={newUserForm.username}/>
           <label htmlFor="username" className="form-label">Username</label>
         </div>
-        <div className="form-floating mb-3">
+        <div className="form-floating mb-3" style={{width: "33%", marginLeft: "33%"}}>
           <input type="password" className="form-control" id="password" aria-describedby="passwordHelp" placeholder="password" onChange={editUserForm} value={newUserForm.password}/>
           <label htmlFor="password" className="form-label">Password</label>
           <div id="passwordHelp" className="form-text" style={{textAlign: "left"}}>Must be at least 8-15 characters with one special character</div>
         </div>
-        <div className="form-floating mb-3">
+        <div className="form-floating mb-3" style={{width: "33%", marginLeft: "33%"}}>
           <input type="password" className="form-control" id="password_confirmation" placeholder="password" onChange={editUserForm} value={newUserForm.password_confirmation}/>
           <label htmlFor="passwordConfirmation" className="form-label">Password Confirmation</label>
           <div id="passwordConfirmationHelp" className="form-text" style={{textAlign: "left"}}>Must be at least 8-15 characters with one special character</div>
@@ -81,7 +82,7 @@ const Login = () => {
           <input type="checkbox" className="form-check-input" id="exampleCheck1"/>
           <label className="form-check-label" for="exampleCheck1">Keep me signed in</label>
         </div> */}
-        <button type="submit" className="btn btn-primary" style={{float: "left"}}>Create New Account</button>
+        <button type="submit" className="btn btn-primary" style={{width: "60%", marginLeft: "20%"}}>Create New Account</button>
       </form>
     </div>
   )

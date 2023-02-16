@@ -1,5 +1,3 @@
-import logo from './logo.svg';
-import './App.css';
 import { useEffect, useContext } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Login from './components/user/Login';
@@ -26,11 +24,8 @@ function App() {
   }
 
   return (
-    <div className="App">
+    <div className="bg-primary-subtle border border-primary">
       <button onClick={logout}>logout</button>
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-      </header>
       <Routes>
         <Route path='/characters' element ={<UserHome />} />
         <Route path='/login' element={<Login />} />
