@@ -1,12 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../context/user.js';
 
 const Login = () => {
+  const [errors, setErrors] = useState(null)
   const [newUserForm, setNewUserForm] = useState({
     email: "",
     username: "",
     password: "",
     password_confirmation: ""
   })
+  const {setUser} = useContext(UserContext);
+  let navigate = useNavigate()
 
   function editUserForm(e) {
     setNewUserForm({
@@ -17,10 +22,37 @@ const Login = () => {
 
   function createNewUser(e) {
     e.preventDefault();
-    console.log(newUserForm)
+    if (newUserForm.password !== newUserForm.password_confirmation) {
+      alert("password and confirmation must match")
+    }
+    else {
+      fetch(`/users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({...newUserForm})
+      })
+      .then(resp => {
+        if (resp.ok) {
+            resp.json().then(user => {
+                setUser(user)
+                navigate(`/characters`)
+            })
+        }
+        else {
+            resp.json().then(data => {
+                const errors = Object.entries(data.errors).map(error => `${error[0]} ${error[1]}`)
+                setErrors(errors)
+            }) 
+        }
+    })
+    }
   }
   
   return (
+    <div>
+      {errors ? errors.map(error => <div className="errors" key={error}>{error}</div>) : null}
       <form onSubmit={createNewUser}>
         <div className="form-floating mb-3">
           <input type="email" className="form-control" id="email" placeholder="name@email.com" onChange={editUserForm} value={newUserForm.email}/>
@@ -46,6 +78,7 @@ const Login = () => {
         </div> */}
         <button type="submit" className="btn btn-primary" style={{float: "left"}}>Create New Account</button>
       </form>
+    </div>
   )
 }
 

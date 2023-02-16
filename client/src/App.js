@@ -8,7 +8,7 @@ import { UserContext } from './components/context/user.js';
 import { useNavigate } from 'react-router-dom';
 
 function App() {
-  const user = useContext(UserContext);
+  const {user, setUser} = useContext(UserContext);
   let navigate = useNavigate()
 
   useEffect(() => {
@@ -18,8 +18,16 @@ function App() {
     else navigate(`/characters}`)
   }, [user, navigate])
 
+  function logout() {
+    fetch(`/logout`, {
+      method: "DELETE"
+    })
+    setUser(null)
+  }
+
   return (
     <div className="App">
+      <button onClick={logout}>logout</button>
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
       </header>
