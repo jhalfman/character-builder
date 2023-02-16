@@ -31,7 +31,7 @@ const Login = () => {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({...newUserForm})
+        body: JSON.stringify({...newUserForm, username: newUserForm.username[0].toUpperCase() + newUserForm.username.slice(1)})
       })
       .then(resp => {
         if (resp.ok) {
@@ -41,9 +41,14 @@ const Login = () => {
             })
         }
         else {
-            resp.json().then(data => {
-                const errors = Object.entries(data.errors).map(error => `${error[0]} ${error[1]}`)
-                setErrors(errors)
+            resp.json().then(error => {
+              if (errors) {
+                if (!errors.includes(error[0])) {
+                  setErrors([...errors, ...error])
+                  console.log([...errors, ...error])
+                }
+              }
+              else setErrors(error)
             }) 
         }
     })
