@@ -6,6 +6,7 @@ import { UserContext } from './components/context/user.js';
 import { useNavigate } from 'react-router-dom';
 import NewUser from './components/user/NewUser';
 import Navbar from './components/navigation/Navbar';
+import NewCharacter from './components/gameplay/NewCharacter';
 
 function App() {
   const {user, setUser} = useContext(UserContext);
@@ -25,19 +26,13 @@ function App() {
     setUser(null)
   }
 
-  function characters() {
-    navigate(`/characters`)
-  }
-
-  function newUser() {
-    navigate(`/newuser`)
-  }
 
   return (
     <div className="bg-primary-subtle border border-primary">
       <Navbar />
       <Routes>
         <Route path='/characters' element ={<UserHome />} />
+        <Route path='/characters/create' element ={<NewCharacter />} />
         <Route path='/login' element={<Login />} />
         <Route path='/newuser' element={<NewUser />} />
       </Routes>
