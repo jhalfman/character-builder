@@ -5,10 +5,11 @@ import UserHome from './components/gameplay/UserHome';
 import { UserContext } from './components/context/user.js';
 import { useNavigate } from 'react-router-dom';
 import NewUser from './components/user/NewUser';
+import Navbar from './components/navigation/Navbar';
 
 function App() {
   const {user, setUser} = useContext(UserContext);
-  let navigate = useNavigate()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!user) {
@@ -34,9 +35,7 @@ function App() {
 
   return (
     <div className="bg-primary-subtle border border-primary">
-      <button onClick={logout}>logout</button>
-      <button onClick={characters}>characters</button>
-      <button onClick={newUser}>newUser</button>
+      <Navbar />
       <Routes>
         <Route path='/characters' element ={<UserHome />} />
         <Route path='/login' element={<Login />} />

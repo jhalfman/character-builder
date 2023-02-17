@@ -11,7 +11,7 @@ const NewUser = () => {
     password_confirmation: ""
   })
   const {setUser} = useContext(UserContext);
-  let navigate = useNavigate()
+  const navigate = useNavigate()
 
   function editUserForm(e) {
     setNewUserForm({
