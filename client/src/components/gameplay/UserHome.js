@@ -16,6 +16,7 @@ const UserHome = () => {
             setCharacters(user.characters)
             // fetch user data
         }
+        //eslint-disable-next-line
     }, [user])
 
   return (
@@ -33,7 +34,7 @@ const UserHome = () => {
         <tbody class="table-group-divider">
           {characters ? characters.map((character, index) => {
             return (
-              <tr>
+              <tr key={character.name}>
                 <th scope="row">{index+1}</th>
                 <td>{character.name}</td>
                 <td>{character.money}</td>

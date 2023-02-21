@@ -9,7 +9,7 @@ import Navbar from './components/navigation/Navbar';
 import NewCharacter from './components/gameplay/NewCharacter';
 
 function App() {
-  const {user, setUser} = useContext(UserContext);
+  const {user} = useContext(UserContext);
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -17,15 +17,8 @@ function App() {
       navigate('/login')
     }
     else navigate(`/characters`)
+    //eslint-disable-next-line
   }, [user])
-
-  function logout() {
-    fetch(`/logout`, {
-      method: "DELETE"
-    })
-    setUser(null)
-  }
-
 
   return (
     <div className="bg-primary-subtle border border-primary">
