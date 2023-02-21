@@ -1,0 +1,2 @@
+class EnemyArchetype < ApplicationRecord
+end

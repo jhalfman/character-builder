@@ -22,8 +22,8 @@ const Navbar = () => {
             <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div className="navbar-nav">
                     <Link to="/characters" className="nav-link link-light" aria-current="page">Characters</Link>
-                    <Link to="/" className="nav-link disabled">Pets</Link>
-                    <Link to="/" className="nav-link disabled">Enemies</Link>
+                    <Link to="/pets" className="nav-link link-light">Pets</Link>
+                    <Link to="/enemies" className="nav-link link-light">Enemies</Link>
                     <Link to="/" className="nav-link disabled">Leaderboard</Link>
                 </div>
                 <div className="navbar-nav ms-auto">

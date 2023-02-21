@@ -8,6 +8,8 @@ import NewUser from './components/user/NewUser';
 import Navbar from './components/navigation/Navbar';
 import NewCharacter from './components/gameplay/NewCharacter';
 import Character from './components/gameplay/Character';
+import PetTypes from './components/archetypes/PetTypes';
+import EnemyTypes from './components/archetypes/EnemyTypes';
 
 function App() {
   const {user} = useContext(UserContext);
@@ -25,9 +27,11 @@ function App() {
     <div className="bg-primary-subtle border border-primary">
       <Navbar />
       <Routes>
-        <Route path='/characters' element ={<UserHome />} />
-        <Route path='/characters/:name' element ={<Character />} />
-        <Route path='/characters/create' element ={<NewCharacter />} />
+        <Route path='/characters' element={<UserHome />} />
+        <Route path='/characters/:name' element={<Character />} />
+        <Route path='/characters/create' element={<NewCharacter />} />
+        <Route path='/pets' element={<PetTypes />} />
+        <Route path='/enemies' element={<EnemyTypes />} />
         <Route path='/login' element={<Login />} />
         <Route path='/newuser' element={<NewUser />} />
       </Routes>

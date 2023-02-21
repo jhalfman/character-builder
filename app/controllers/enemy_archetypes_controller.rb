@@ -1,0 +1,2 @@
+class EnemyArchetypesController < ApplicationController
+end

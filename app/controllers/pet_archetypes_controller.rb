@@ -1,0 +1,2 @@
+class PetArchetypesController < ApplicationController
+end

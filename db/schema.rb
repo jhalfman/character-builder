@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_02_17_043443) do
+ActiveRecord::Schema.define(version: 2023_02_21_184517) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -28,6 +28,27 @@ ActiveRecord::Schema.define(version: 2023_02_17_043443) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["user_id"], name: "index_characters_on_user_id"
+  end
+
+  create_table "enemy_archetypes", force: :cascade do |t|
+    t.string "name"
+    t.string "image_url"
+    t.float "hp_modifier"
+    t.float "attack_modifer"
+    t.float "defense_modifier"
+    t.float "speed_modifier"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "pet_archetypes", force: :cascade do |t|
+    t.string "name"
+    t.string "image_url"
+    t.float "attack"
+    t.float "speed"
+    t.float "defense"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "users", force: :cascade do |t|

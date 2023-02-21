@@ -1,0 +1,2 @@
+class PetArchetype < ApplicationRecord
+end
