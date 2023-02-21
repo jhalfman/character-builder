@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   
-  resources :characters
+  resources :characters, only: [:create, :destroy, :show, :index]
   resources :users, only: [:create, :destroy, :show]
 
   post "/login", to: "sessions#create"

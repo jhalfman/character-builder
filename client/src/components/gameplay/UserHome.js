@@ -21,7 +21,7 @@ const UserHome = () => {
 
   return (
     <div style={{paddingLeft: "10px"}}>
-      <table class="table caption-top table-striped table-hover">
+      <table className="table caption-top table-striped table-hover">
         {user ? <caption>{user.username}'s Characters</caption> : null}
         <thead>
           <tr>
@@ -31,7 +31,7 @@ const UserHome = () => {
             <th scope="col">Level</th>
           </tr>
         </thead>
-        <tbody class="table-group-divider">
+        <tbody className="table-group-divider">
           {characters ? characters.map((character, index) => {
             return (
               <tr key={character.name}>

@@ -10,16 +10,38 @@ const NewCharacter = () => {
         luck: 0
     })
     const [attributePoints, setAttributePoints] = useState(20)
+    const [errors, setErrors] = useState(null)
 
     function createCharacter(e) {
         e.preventDefault();
-        console.log(newCharacterForm)
+        if (attributePoints !== 0) {
+            alert(`You must use all attribute points (${attributePoints} points remaining)`)
+        }
+        else if (newCharacterForm.name === "") {
+            alert('Character name cannot be blank')
+        }
+        else {
+            fetch(`/characters`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(newCharacterForm)
+            })
+            .then(resp => {
+                if (resp.ok) {
+                    resp.json().then(character => {
+                        console.log(character)
+                    })
+                }
+                else {
+                    resp.json().then(error => {
+                        setErrors(error)
+                    }) 
+                }
+            })
+        }
     }
-
-    // function updateAttributeBank(characterForm) {
-    //     const attributeSum = parseInt(characterForm.hp) + parseInt(characterForm.attack) + parseInt(characterForm.defense) + parseInt(characterForm.speed) + parseInt(characterForm.luck)
-    //     setAttributePoints(20 - attributeSum)
-    // }
 
     function editNewCharacterForm(e) {
         if (e.target.id === "name") {
@@ -30,15 +52,17 @@ const NewCharacter = () => {
             setNewCharacterForm(updatedCharacterForm)
         }
         else if (parseInt(newCharacterForm[e.target.id]) < parseInt(e.target.value)) {
-            if (attributePoints > 0) {
+            if ((e.target.value - newCharacterForm[e.target.id]) > attributePoints) {
+                alert("Not enough Attribute Points Remaining")
+            }
+            else {
                 const updatedCharacterForm = {
                     ...newCharacterForm,
                     [e.target.id]: e.target.value
                 }
                 setNewCharacterForm(updatedCharacterForm)
-                setAttributePoints(attributePoints - 1)
+                setAttributePoints(attributePoints - (e.target.value - newCharacterForm[e.target.id]))
             }
-            else alert("No Attribute Points Remaining")
         }
         else {
             if (e.target.value < 0) {
@@ -50,13 +74,14 @@ const NewCharacter = () => {
                     [e.target.id]: e.target.value
                 }
                 setNewCharacterForm(updatedCharacterForm)
-                setAttributePoints(attributePoints + 1)
+                setAttributePoints(attributePoints + (newCharacterForm[e.target.id] - e.target.value))
             }
         }
     }
 
   return (
     <div className="bg-primary-subtle border border-primary">
+    {errors ? errors.map(error => <div className="errors" key={error}>{error}</div>) : null}
       <form onSubmit={createCharacter} className="row">
         <legend className="border-bottom border-primary" style={{textAlign: "center", width: "75%", marginLeft: "12.5%"}}>Create New Character</legend>
         <div className="mb-3" style={{width: "33%", marginLeft: "33%"}}>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/user.js';
 
 const NewUser = () => {
-    const [errors, setErrors] = useState(null)
+  const [errors, setErrors] = useState(null)
   const [newUserForm, setNewUserForm] = useState({
     email: "",
     username: "",
