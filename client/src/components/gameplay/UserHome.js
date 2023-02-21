@@ -34,7 +34,7 @@ const UserHome = () => {
         <tbody className="table-group-divider">
           {characters ? characters.map((character, index) => {
             return (
-              <tr key={character.name}>
+              <tr key={character.name} onClick={() => navigate(`/characters/${character.name}`)}>
                 <th scope="row">{index+1}</th>
                 <td>{character.name}</td>
                 <td>{character.money}</td>

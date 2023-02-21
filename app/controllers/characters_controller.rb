@@ -5,6 +5,11 @@ class CharactersController < ApplicationController
         render json: character, status: :ok
     end
 
+    def show
+        character = current_user.characters.find_by_name(params[:name])
+        render json: character, status: :ok
+    end
+
     private
 
     def character_params

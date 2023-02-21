@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const NewCharacter = () => {
     const [newCharacterForm, setNewCharacterForm] = useState({
@@ -11,6 +12,7 @@ const NewCharacter = () => {
     })
     const [attributePoints, setAttributePoints] = useState(20)
     const [errors, setErrors] = useState(null)
+    const navigate = useNavigate()
 
     function createCharacter(e) {
         e.preventDefault();
@@ -32,6 +34,7 @@ const NewCharacter = () => {
                 if (resp.ok) {
                     resp.json().then(character => {
                         console.log(character)
+                        navigate(`/characters/${character.name}`)
                     })
                 }
                 else {

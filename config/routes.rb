@@ -1,8 +1,9 @@
 Rails.application.routes.draw do
   
-  resources :characters, only: [:create, :destroy, :show, :index]
+  resources :characters, only: [:create, :destroy, :index]
   resources :users, only: [:create, :destroy, :show]
 
+  get "/characters/:name", to: "characters#show"
   post "/login", to: "sessions#create"
   delete "/logout", to: "sessions#destroy"
   # Routing logic: fallback requests for React Router.
