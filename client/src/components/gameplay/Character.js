@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { NavLink as Link} from 'react-router-dom';
 
-const Character = ( {setCharacters, characters} ) => {
-    const [character, setCharacter] = useState(null)
+const Character = ( {setCharacters, characters, character, setCharacter} ) => {
     const [errors, setErrors] = useState(null)
     let {name} = useParams();
     const navigate = useNavigate()
@@ -111,7 +110,9 @@ if (!character) {
             <Link to="" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>Dive!</Link>
             </div>
             <div className="col border border-secondary">
-            <Link to="" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>New Pet</Link>
+            <Link to={`/characters/${name}/pets/create`} className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>
+                <button className="btn btn-success" style={{width: "100%"}}>New Pet</button>
+            </Link>
             </div>
         </div>
         <div className="row border border-success" style={{marginTop: "10px"}}>
@@ -119,7 +120,7 @@ if (!character) {
                 <button className="btn btn-primary" style={{width: "50%", marginLeft: "40%", textAlign: "center"}} onClick={deleteCharacter}>Delete Character</button>
             </div>
             <div className="col border border-secondary">
-                <Link to="/characters" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "10%", textAlign: "center"}}><button className="btn btn-primary" style={{width: "100%"}}>Back to Characters</button></Link>
+                <Link to="/characters" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "10%", textAlign: "center"}}><button className="btn btn-primary" style={{width: "100%"}} onClick={() => setCharacter(null)}>Back to Characters</button></Link>
             </div>
         </div>
     </div>

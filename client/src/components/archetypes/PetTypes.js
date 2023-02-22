@@ -1,19 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
-const PetTypes = () => {
-    const [pets, setPets] = useState(null)
-
-    useEffect(() => {
-        fetch(`/pet_archetypes`)
-        .then(resp => resp.json())
-        .then(data => setPets(data))
-    }, [])
+const PetTypes = ({petTypes}) => {
 
   return (
     <div className="container">
         <div className="row">
             <div className="col-sm-12 "><h1 style={{textAlign: "center", marginTop: "10px"}}>Pet Types</h1></div>
-            {pets ? pets.map(pet => {
+            {petTypes ? petTypes.map(pet => {
                 return (
                     <div className="col-sm-4 border border-primary" key={pet.name} style={{marginTop: "20px", paddingRight: "20px", paddingLeft: "20px"}}> 
                         <div className="row justify-content-center">
