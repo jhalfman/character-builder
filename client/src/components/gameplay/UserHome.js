@@ -1,20 +1,21 @@
-import React, { useEffect, useContext, useState } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/user.js';
 
-const UserHome = () => {
+const UserHome = ( {characters, setCharacters} ) => {
     const {user} = useContext(UserContext);
     let navigate = useNavigate();
-    const [characters, setCharacters] = useState(null)
 
     useEffect(() => {
         if (!user) {
             navigate(`/login`)
         }
-        else {
-            console.log(user)
+        else if (!characters) {
             setCharacters(user.characters)
             // fetch user data
+        }
+        else {
+          return null
         }
         //eslint-disable-next-line
     }, [user])

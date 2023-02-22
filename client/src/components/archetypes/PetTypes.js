@@ -20,7 +20,7 @@ const PetTypes = () => {
                             <h3 style={{textAlign: "center"}}>{pet.name}</h3>
                         </div>
                         <div className="row justify-content-center"> 
-                            <img src={`${pet.image_url}`} style={{width: "200px"}}></img>
+                            <img src={`${pet.image_url}`} style={{width: "200px"}} alt={pet.name}></img>
                         </div>
                         <div className="row">
                             <p>Description: {pet.description}</p>

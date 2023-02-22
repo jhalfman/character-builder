@@ -1,14 +1,15 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const NewCharacter = () => {
+const NewCharacter = ( {setCharacters, characters} ) => {
     const [newCharacterForm, setNewCharacterForm] = useState({
         name: "",
         hp: 0,
         attack: 0,
         defense: 0,
         speed: 0,
-        luck: 0
+        luck: 0,
+        avatar_url: ""
     })
     const [attributePoints, setAttributePoints] = useState(20)
     const [errors, setErrors] = useState(null)
@@ -33,7 +34,10 @@ const NewCharacter = () => {
             .then(resp => {
                 if (resp.ok) {
                     resp.json().then(character => {
-                        console.log(character)
+                        setCharacters([
+                            ...characters,
+                            character
+                        ])
                         navigate(`/characters/${character.name}`)
                     })
                 }
@@ -47,7 +51,7 @@ const NewCharacter = () => {
     }
 
     function editNewCharacterForm(e) {
-        if (e.target.id === "name") {
+        if (e.target.id === "name" || e.target.id === "avatar_url") {
             const updatedCharacterForm = {
                 ...newCharacterForm,
                 [e.target.id]: e.target.value
@@ -91,6 +95,10 @@ const NewCharacter = () => {
           <label htmlFor="name" className="form-label">Character Name</label>
           <input type="text" className="form-control" id="name" onChange={editNewCharacterForm} value={newCharacterForm.name}/>
         </div>
+        <div className="mb-3" style={{width: "33%", marginLeft: "33%"}}>
+          <label htmlFor="avatar_url" className="form-label">Avatar URL</label>
+          <input type="text" className="form-control" id="avatar_url" onChange={editNewCharacterForm} value={newCharacterForm.avatar_url}/>
+        </div>
         <div className="row">
             <div className="col-sm-4 mb-3"></div>
             <div className="col-sm-2 mb-3">
@@ -99,19 +107,19 @@ const NewCharacter = () => {
             </div>
             <div className="col mb-3">
                 <label htmlFor="hp" className="form-label">Hit Points</label>
-                <input style={{width: "60%"}} type="number" className="form-control" id="hp" aria-describedby="hpHelp" onChange={editNewCharacterForm} value={newCharacterForm.hp}/>
+                <input style={{width: "80%"}} type="number" className="form-control" id="hp" aria-describedby="hpHelp" onChange={editNewCharacterForm} value={newCharacterForm.hp}/>
                 <label htmlFor="speed" className="form-label">Speed</label>
-                <input style={{width: "60%"}} type="number" className="form-control" id="speed" aria-describedby="speedHelp" onChange={editNewCharacterForm} value={newCharacterForm.speed}/>
+                <input style={{width: "80%"}} type="number" className="form-control" id="speed" aria-describedby="speedHelp" onChange={editNewCharacterForm} value={newCharacterForm.speed}/>
             </div>
             <div className="col mb-3">
                 <label htmlFor="attack" className="form-label">Attack</label>
-                <input style={{width: "60%"}} type="number" className="form-control" id="attack" aria-describedby="attackHelp" onChange={editNewCharacterForm} value={newCharacterForm.attack}/>
+                <input style={{width: "80%"}} type="number" className="form-control" id="attack" aria-describedby="attackHelp" onChange={editNewCharacterForm} value={newCharacterForm.attack}/>
                 <label htmlFor="luck" className="form-label">Luck</label>
-                <input style={{width: "60%"}} type="number" className="form-control" id="luck" aria-describedby="luckHelp" onChange={editNewCharacterForm} value={newCharacterForm.luck}/>
+                <input style={{width: "80%"}} type="number" className="form-control" id="luck" aria-describedby="luckHelp" onChange={editNewCharacterForm} value={newCharacterForm.luck}/>
             </div>
             <div className="col mb-3">
                 <label htmlFor="defense" className="form-label">Defense</label>
-                <input style={{width: "60%"}} type="number" className="form-control" id="defense" aria-describedby="defenseHelp" onChange={editNewCharacterForm} value={newCharacterForm.defense}/>
+                <input style={{width: "80%"}} type="number" className="form-control" id="defense" aria-describedby="defenseHelp" onChange={editNewCharacterForm} value={newCharacterForm.defense}/>
             </div>
             <div className="col-sm-3 mb-3"></div>
         </div>
@@ -121,6 +129,7 @@ const NewCharacter = () => {
         </div> */}
         <button type="submit" className="btn btn-primary" style={{width: "50%", marginLeft: "25%"}}>Create Character</button>
       </form>
+      <button type="button" className="btn btn-warning" style={{width: "30%", marginLeft: "35%", marginTop: "20px", marginBottom: "20px"}} onClick={() => navigate("/characters")}>Back to Character List</button>
     </div>
   )
 }

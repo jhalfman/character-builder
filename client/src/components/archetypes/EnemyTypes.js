@@ -20,7 +20,7 @@ const EnemyTypes = () => {
                             <h3 style={{textAlign: "center"}}>{enemy.name}</h3>
                         </div>
                         <div className="row justify-content-center"> 
-                            <img src={`${enemy.image_url}`} style={{width: "200px"}}></img>
+                            <img src={`${enemy.image_url}`} style={{width: "200px"}} alt={enemy.name}></img>
                         </div>
                         <div className="row">
                             <p>Description: {enemy.description}</p>

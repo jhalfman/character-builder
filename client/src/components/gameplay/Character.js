@@ -22,7 +22,6 @@ const Character = () => {
             }
         })
     }, [name])
-    console.log(character)
     
 if (!character) {
     return <div>Loading Character...</div>
@@ -34,7 +33,7 @@ if (!character) {
         <div className="row border border-success" style={{height: "614px"}}>
             <div className="col-8 border border-warning">
                 <h3 style={{textAlign: "center"}}>{character.name}</h3>
-                <img src={character.avatar_url} style={{width: "40%", marginLeft: "30%"}}></img>
+                <img src={character.avatar_url} style={{width: "40%", marginLeft: "30%"}} alt={character.name}></img>
                 <div className="border border-light">
                     <ul style={{}}>
                         <li>Attack: {character.attack}</li>
@@ -52,13 +51,13 @@ if (!character) {
                 <h3 style={{textAlign: "center"}}>{character.name}'s Pets</h3>
                 {character ? character.pets.map(pet => {
                     return (
-                    <div className='border border-warning' style={{padding: "5%"}}>
+                    <div key={pet.name} className='border border-warning' style={{padding: "5%"}}>
                         <h5 style={{textAlign: "center"}}>{pet.name}</h5>
-                        <img src={`${pet.pet_archetype.image_url}`} style={{width: "50%", marginLeft: "25%"}}></img>
+                        <img src={`${pet.pet_archetype.image_url}`} style={{width: "50%", marginLeft: "25%"}} alt={pet.name}></img>
                         <div className='border border-primary'>
-                            <button type="button" class="btn btn-primary" style={{width: "20%", marginLeft: "10%"}}>Pet</button>
-                            <button type="button" class="btn btn-primary" style={{width: "20%", marginLeft: "10%"}}>Feed</button>
-                            <button type="button" class="btn btn-primary" style={{width: "20%", marginLeft: "10%"}}>Release</button>
+                            <button type="button" className="btn btn-primary" style={{width: "20%", marginLeft: "10%"}}>Pet</button>
+                            <button type="button" className="btn btn-primary" style={{width: "20%", marginLeft: "10%"}}>Feed</button>
+                            <button type="button" className="btn btn-primary" style={{width: "20%", marginLeft: "10%"}}>Release</button>
                         </div>
                         <div style={{marginTop: "5px"}}>
                             Happiness: &#128151; &#128151; &#128151; &#128151; &#128151; &#128151; &#128151; &#128151;
@@ -69,14 +68,17 @@ if (!character) {
             </div>
         </div>
         <div className="row border border-success">
-            <div class="col border border-secondary">
+            <div className="col border border-secondary">
             <Link to="" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>Edit Stats (500 credits)</Link>
             </div>
-            <div class="col border border-secondary">
-            <Link to="" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>Dive!</Link>
+            <div className="col border border-secondary">
+            <Link to="" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center", marginTop: "10px"}}>Dive!</Link>
             </div>
-            <div class="col border border-secondary">
-            <Link to="" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>New Pet</Link>
+            <div className="col border border-secondary">
+            <Link to="" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center", marginTop: "10px"}}>New Pet</Link>
+            </div>
+            <div className="col border border-secondary">
+            <Link to="/characters" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center", marginTop: "10px"}}>Back to Characters</Link>
             </div>
         </div>
     </div>
@@ -84,9 +86,3 @@ if (!character) {
 }
 
 export default Character
-
-{/* {errors ? errors.map(error => <div className="errors" key={error}>{error}</div>) : null}
-        {character ? character.name : null}
-        {character ? character.pets.map(pet => {
-            return <img src={`${pet.pet_archetype.image_url}`} style={{width: "200px"}}></img>
-        }) : null} */}
