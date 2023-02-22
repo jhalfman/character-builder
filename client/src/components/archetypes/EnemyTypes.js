@@ -8,10 +8,35 @@ const EnemyTypes = () => {
         .then(resp => resp.json())
         .then(data => setEnemies(data))
     }, [])
-    
+
   return (
-    <div>{enemies ? enemies.map(enemy => <img src={`${enemy.image_url}`} style={{width: "50px"}}/>) : null}</div>
-  )
+    <div className="container">
+        <div className="row border border-primary">
+            <div className="col-sm-12 border border-secondary"><h1 style={{textAlign: "center", marginTop: "10px"}}>Enemies</h1></div>
+            {enemies ? enemies.map(enemy => {
+                return (
+                    <div className="col-sm-4 border border-secondary" key={enemy.name} style={{marginTop: "20px", paddingRight: "20px", paddingLeft: "20px"}}> 
+                        <div className="row border border-success justify-content-center">
+                            <h3 style={{textAlign: "center"}}>{enemy.name}</h3>
+                        </div>
+                        <div className="row border border-success justify-content-center"> 
+                            <img src={`${enemy.image_url}`} style={{width: "200px"}}></img>
+                        </div>
+                        <div className="row border border-success">
+                            <p>Description: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+                            <ul style={{marginLeft: "10px", marginTop: "-10px"}}>
+                                <li>Attack: {Math.trunc(enemy.attack_modifier * 100)}%</li>
+                                <li>Defense: {Math.trunc(enemy.defense_modifier * 100)}%</li>
+                                <li>Speed: {Math.trunc(enemy.speed_modifier * 100)}%</li>
+                                <li>HP: {Math.trunc(enemy.hp_modifier * 100)}%</li>
+                            </ul>
+                        </div>
+                    </div>
+                )
+            }) : null}
+        </div>
+    </div>
+    )
 }
 
 export default EnemyTypes
