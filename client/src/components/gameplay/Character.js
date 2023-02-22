@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { NavLink as Link} from 'react-router-dom';
 
-const Character = () => {
+const Character = ( {setCharacters, characters} ) => {
     const [character, setCharacter] = useState(null)
     const [errors, setErrors] = useState(null)
     let {name} = useParams();
+    const navigate = useNavigate()
 
     useEffect(() => {
         fetch(`/characters/${name}`)
@@ -22,6 +23,24 @@ const Character = () => {
             }
         })
     }, [name])
+
+    function deleteCharacter() {
+        fetch(`/characters/${character.id}`, {
+            method: "DELETE"
+        })
+        .then(resp => {
+            if (resp.ok) {
+                    const newCharacterList = characters.filter(char => char.id !== character.id)
+                    setCharacters(newCharacterList)
+                    navigate("/characters")
+            }
+            else {
+                resp.json().then(error => {
+                    setErrors(error)
+                }) 
+            }
+        })
+    }
     
 if (!character) {
     return <div>Loading Character...</div>
@@ -30,7 +49,7 @@ if (!character) {
   return (
     <div className="container border border-primary">
         {errors ? errors.map(error => <div className="errors" key={error}>{error}</div>) : null}
-        <div className="row border border-success" style={{height: "614px"}}>
+        <div className="row border border-success">
             <div className="col-8 border border-warning">
                 <h3 style={{textAlign: "center"}}>{character.name}</h3>
                 <img src={character.avatar_url} style={{width: "40%", marginLeft: "30%"}} alt={character.name}></img>
@@ -47,7 +66,7 @@ if (!character) {
                     </ul>
                 </div>
             </div>
-            <div className="col-4 border border-info" style={{overflowY: "auto", height: "100%"}}>
+            <div className="col-4 border border-info" style={{overflowY: "auto", height: "700px"}}>
                 <h3 style={{textAlign: "center"}}>{character.name}'s Pets</h3>
                 {character ? character.pets.map(pet => {
                     return (
@@ -72,13 +91,18 @@ if (!character) {
             <Link to="" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>Edit Stats (500 credits)</Link>
             </div>
             <div className="col border border-secondary">
-            <Link to="" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center", marginTop: "10px"}}>Dive!</Link>
+            <Link to="" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>Dive!</Link>
             </div>
             <div className="col border border-secondary">
-            <Link to="" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center", marginTop: "10px"}}>New Pet</Link>
+            <Link to="" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>New Pet</Link>
+            </div>
+        </div>
+        <div className="row border border-success" style={{marginTop: "10px"}}>
+            <div className="col border border-secondary">
+                <button className="btn btn-primary" style={{width: "50%", marginLeft: "40%", textAlign: "center"}} onClick={deleteCharacter}>Delete Character</button>
             </div>
             <div className="col border border-secondary">
-            <Link to="/characters" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center", marginTop: "10px"}}>Back to Characters</Link>
+                <Link to="/characters" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "10%", textAlign: "center"}}><button className="btn btn-primary" style={{width: "100%"}}>Back to Characters</button></Link>
             </div>
         </div>
     </div>

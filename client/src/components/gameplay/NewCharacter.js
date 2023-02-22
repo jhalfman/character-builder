@@ -23,6 +23,31 @@ const NewCharacter = ( {setCharacters, characters} ) => {
         else if (newCharacterForm.name === "") {
             alert('Character name cannot be blank')
         }
+        else if (newCharacterForm.avatar_url === "") {
+            fetch(`/characters`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({...newCharacterForm, avatar_url: "https://i.imgur.com/Y5Efdki.png"})
+            })
+            .then(resp => {
+                if (resp.ok) {
+                    resp.json().then(character => {
+                        setCharacters([
+                            ...characters,
+                            character
+                        ])
+                        navigate(`/characters/${character.name}`)
+                    })
+                }
+                else {
+                    resp.json().then(error => {
+                        setErrors(error)
+                    }) 
+                }
+            })
+        }
         else {
             fetch(`/characters`, {
                 method: "POST",

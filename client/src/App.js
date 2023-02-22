@@ -29,7 +29,7 @@ function App() {
       <Navbar />
       <Routes>
         <Route path='/characters' element={<UserHome characters={characters} setCharacters={setCharacters}/>} />
-        <Route path='/characters/:name' element={<Character />} />
+        <Route path='/characters/:name' element={<Character setCharacters={setCharacters} characters={characters}/>} />
         <Route path='/characters/create' element={<NewCharacter setCharacters={setCharacters} characters={characters}/>} />
         <Route path='/pets' element={<PetTypes />} />
         <Route path='/enemies' element={<EnemyTypes />} />
