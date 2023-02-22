@@ -23,7 +23,7 @@ const EnemyTypes = () => {
                             <img src={`${enemy.image_url}`} style={{width: "200px"}}></img>
                         </div>
                         <div className="row">
-                            <p>Description: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+                            <p>Description: {enemy.description}</p>
                             <ul style={{marginLeft: "10px", marginTop: "-10px"}}>
                                 <li>Attack: {Math.trunc(enemy.attack_modifier * 100)}%</li>
                                 <li>Defense: {Math.trunc(enemy.defense_modifier * 100)}%</li>
