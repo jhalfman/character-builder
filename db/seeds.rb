@@ -23,3 +23,17 @@
 #     {name: "Healer", image_url: "https://i.imgur.com/2qrIrIJ.png", hp_modifier: 0.20, attack_modifer: 0.50, speed_modifier: 0.10, defense_modifier: 0.20},
 #     {name: "Tank", image_url: "https://i.imgur.com/MsiU7FP.png", hp_modifier: 0.40, attack_modifer: 0.05, speed_modifier: 0.05, defense_modifier: 0.50}
 # ])
+
+EnemyArchetype.find_by_name("Balanced").update(description: "Balanced enemies have evenly distributed stats and don't specialize in any one area.")
+EnemyArchetype.find_by_name("Ranged").update(description: "Ranged fighters are skilled in dealing high physical damage, but are not great at taking hits.")
+EnemyArchetype.find_by_name("Critter").update(description: "Critters are extremely quick and easy to take down, but will deal a lot of damage if forgotten about.")
+EnemyArchetype.find_by_name("Mage").update(description: "A mage uses offensive spells to keep attackers at bay, but struggles with defense.")
+EnemyArchetype.find_by_name("Healer").update(description: "The healers will continue to restore health and buff defense of its fellow enemies.")
+EnemyArchetype.find_by_name("Tank").update(description: "Tanks are built for defense and absorbing damage in exchange for speed and attack power.")
+
+PetArchetype.find_by_name("Turtle").update(description: "Turtles excel in defense but are slow while not being particularly useful damage dealers.")
+PetArchetype.find_by_name("Spider").update(description: "Spiders may be small and defenseless, but their attacks really pack a venomous punch.")
+PetArchetype.find_by_name("Hummingbird").update(description: "If you're looking for a speed boost hummingbirds are your best bet.")
+PetArchetype.find_by_name("Panther").update(description: "Panthers offer a decent combination of attack and speed.")
+PetArchetype.find_by_name("Gorilla").update(description: "These apes are strong as they are tough but are not known for their quickness.")
+PetArchetype.find_by_name("Armadillo").update(description: "Utilize an armadillo's spikey shield and speed to really frustrate your enemy's attempts to hit you.")
