@@ -41,6 +41,23 @@ const Character = ( {setCharacters, characters} ) => {
             }
         })
     }
+
+    function releasePet(id) {
+        fetch(`/pets/${id}`, {
+            method: "DELETE"
+        })
+        .then(resp => {
+            if (resp.ok) {
+                    const newPets = character.pets.filter(pet => pet.id !== id)
+                    setCharacter({...character, pets: newPets})
+            }
+            else {
+                resp.json().then(error => {
+                    setErrors(error)
+                }) 
+            }
+        })
+    }
     
 if (!character) {
     return <div>Loading Character...</div>
@@ -76,7 +93,7 @@ if (!character) {
                         <div className='border border-primary'>
                             <button type="button" className="btn btn-primary" style={{width: "20%", marginLeft: "10%"}}>Pet</button>
                             <button type="button" className="btn btn-primary" style={{width: "20%", marginLeft: "10%"}}>Feed</button>
-                            <button type="button" className="btn btn-primary" style={{width: "20%", marginLeft: "10%"}}>Release</button>
+                            <button type="button" className="btn btn-primary" style={{width: "20%", marginLeft: "10%"}} onClick={() => releasePet(pet.id)}>Release</button>
                         </div>
                         <div style={{marginTop: "5px"}}>
                             Happiness: &#128151; &#128151; &#128151; &#128151; &#128151; &#128151; &#128151; &#128151;
