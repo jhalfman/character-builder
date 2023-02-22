@@ -23,14 +23,18 @@ const Character = () => {
         })
     }, [name])
     console.log(character)
+    
+if (!character) {
+    return <div>Loading Character...</div>
+}
 
   return (
     <div className="container border border-primary">
         {errors ? errors.map(error => <div className="errors" key={error}>{error}</div>) : null}
-        <div className="row border border-success" style={{height: "700px"}}>
+        <div className="row border border-success" style={{height: "614px"}}>
             <div className="col-8 border border-warning">
                 <h3 style={{textAlign: "center"}}>{character.name}</h3>
-                <img src={character.avatar_url} style={{width: "50%", marginLeft: "25%"}}></img>
+                <img src={character.avatar_url} style={{width: "40%", marginLeft: "30%"}}></img>
                 <div className="border border-light">
                     <ul style={{}}>
                         <li>Attack: {character.attack}</li>
@@ -45,6 +49,7 @@ const Character = () => {
                 </div>
             </div>
             <div className="col-4 border border-info" style={{overflowY: "auto", height: "100%"}}>
+                <h3 style={{textAlign: "center"}}>{character.name}'s Pets</h3>
                 {character ? character.pets.map(pet => {
                     return (
                     <div className='border border-warning' style={{padding: "5%"}}>
