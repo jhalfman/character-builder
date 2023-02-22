@@ -21,11 +21,15 @@ const Character = () => {
             }
         })
     }, [name])
+    console.log(character)
 
   return (
     <div>
         {errors ? errors.map(error => <div className="errors" key={error}>{error}</div>) : null}
         {character ? character.name : null}
+        {character ? character.pets.map(pet => {
+            return <img src={`${pet.pet_archetype.image_url}`} style={{width: "200px"}}></img>
+        }) : null}
     </div>
   )
 }

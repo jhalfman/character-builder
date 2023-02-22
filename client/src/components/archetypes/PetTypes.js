@@ -23,7 +23,7 @@ const PetTypes = () => {
                             <img src={`${pet.image_url}`} style={{width: "200px"}}></img>
                         </div>
                         <div className="row">
-                            <p>Description: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+                            <p>Description: {pet.description}</p>
                             <ul style={{marginLeft: "10px", marginTop: "-10px"}}>
                                 <li>Attack: {Math.trunc(pet.attack * 100)}%</li>
                                 <li>Defense: {Math.trunc(pet.defense * 100)}%</li>
