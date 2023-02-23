@@ -21,7 +21,7 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
                 }) 
             }
         })
-    }, [name])
+    }, [name, setCharacter])
 
     function deleteCharacter() {
         fetch(`/characters/${character.id}`, {
