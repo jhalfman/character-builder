@@ -48,10 +48,12 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
         .then(resp => {
             if (resp.ok) {
                     const newPets = character.pets.filter(pet => pet.id !== id)
-                    setCharacter({...character, pets: newPets})
+                    setCharacter({...character, pets: newPets, money: character.money + 250})
+                    console.log(character)
             }
             else {
                 resp.json().then(error => {
+                    console.log(error)
                     setErrors(error)
                 }) 
             }

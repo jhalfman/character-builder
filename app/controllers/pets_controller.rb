@@ -3,12 +3,14 @@ class PetsController < ApplicationController
     def create
         pet = Pet.create!(pet_params)
         character = Character.find(params[:character_id])
-        character.update(money: money - 500)
+        character.update(money: character.money - 500)
         render json: pet, status: :created
     end
 
     def destroy
         pet = Pet.find(params[:id])
+        character = Character.find(pet.character_id)
+        character.update(money: character.money + 250)
         pet.destroy
         head :no_content
     end

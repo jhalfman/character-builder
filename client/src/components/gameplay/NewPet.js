@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink as Link, useParams} from 'react-router-dom';
+import { useNavigate, NavLink as Link, useParams} from 'react-router-dom';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
 
@@ -17,6 +17,7 @@ const NewPet = ( {petTypes, character} ) => {
         Hungry: "This modifier increases the amount of feeding a pet requires, but increases the power of their abilities.  Keeping a hungry pet fed will produce a stronger pet."
     }
     let {name} = useParams();
+    const navigate = useNavigate()
 
     function selectPet(type) {
         setNewPetForm({...newPetForm, pet_archetype_id: type.id, name: ""})
@@ -51,6 +52,7 @@ const NewPet = ( {petTypes, character} ) => {
                 if (resp.ok) {
                     resp.json().then(pet => {
                        console.log(pet)
+                       navigate(`/characters/${name}`)
                     })
                 }
                 else {
