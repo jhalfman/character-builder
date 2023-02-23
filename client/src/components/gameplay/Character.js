@@ -67,11 +67,11 @@ if (!character) {
   return (
     <div className="container border border-primary">
         {errors ? errors.map(error => <div className="errors" key={error}>{error}</div>) : null}
-        <div className="row border border-success align-items-center">
-            <div className="col-8 border border-warning">
-                <h3 style={{textAlign: "center"}}>{character.name}</h3>
-                <img src={character.avatar_url} style={{width: "40%", marginLeft: "30%"}} alt={character.name}></img>
-                <div className="border border-light">
+        <div className="row align-items-center border-bottom border-primary">
+            <div className="col-8">
+                <h3 className="border-bottom border-primary" style={{textAlign: "center", paddingBottom: "10px", width: "50%", marginLeft: "25%"}}>{character.name}</h3>
+                <img src={character.avatar_url} style={{width: "40%", marginLeft: "30%", marginBottom: "20px", marginTop: "10px"}} alt={character.name}></img>
+                <div className="border-top border-primary" style={{paddingTop: "20px"}}>
                     <ul style={{}}>
                         <li>Attack: {character.attack}</li>
                         <li>Defense: {character.defense}</li>
@@ -85,16 +85,16 @@ if (!character) {
                 </div>
             </div>
             <div className="col-4 border border-info" style={{overflowY: "auto", height: "700px"}}>
-                <h3 style={{textAlign: "center"}}>{character.name}'s Pets</h3>
+                <h3 className='border-bottom border-primary' style={{textAlign: "center", marginTop: "10px", paddingBottom: "10px"}}>{character.name}'s Pets</h3>
                 {character ? character.pets.map(pet => {
                     return (
-                    <div key={pet.name} className='border border-warning' style={{padding: "5%"}}>
+                    <div key={pet.name} className='' style={{padding: "5%"}}>
                         <h5 style={{textAlign: "center"}}>{pet.name}</h5>
                         <img src={`${pet.pet_archetype.image_url}`} style={{width: "50%", marginLeft: "25%"}} alt={pet.name}></img>
-                        <div className='border border-primary'>
-                            <button type="button" className="btn btn-primary" style={{width: "20%", marginLeft: "10%"}}>Pet</button>
-                            <button type="button" className="btn btn-primary" style={{width: "20%", marginLeft: "10%"}}>Feed</button>
-                            <button type="button" className="btn btn-primary" style={{width: "20%", marginLeft: "10%"}} onClick={() => releasePet(pet.id)}>Release</button>
+                        <div className=''>
+                            <button type="button" className="btn btn-primary" style={{width: "25%", marginLeft: "6.25%"}}>Pet</button>
+                            <button type="button" className="btn btn-primary" style={{width: "25%", marginLeft: "6.25%"}}>Feed</button>
+                            <button type="button" className="btn btn-primary" style={{width: "25%", marginLeft: "6.25%"}} onClick={() => releasePet(pet.id)}>Release</button>
                         </div>
                         <div style={{marginTop: "5px"}}>
                             Happiness: &#128151; &#128151; &#128151; &#128151; &#128151; &#128151; &#128151; &#128151;
@@ -104,25 +104,25 @@ if (!character) {
                 }) : null}
             </div>
         </div>
-        <div className="row border border-success">
-            <div className="col border border-secondary">
-            <Link to={`/characters/${name}/edit`} className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}><button className="btn btn-success" style={{width: "100%"}}>Edit Stats</button></Link>
+        <div className="row border-bottom border-primary" style={{paddingBottom: "5px", marginTop: "5px"}}>
+            <div className="col">
+            <Link to={`/characters/${name}/edit`} className="nav-link link-dark" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}><button className="btn btn-success" style={{width: "100%"}}>Edit Stats</button></Link>
             </div>
-            <div className="col border border-secondary">
-            <Link to="" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>Dive!</Link>
+            <div className="col">
+            <Link to="" className="nav-link link-dark" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>Dive!</Link>
             </div>
-            <div className="col border border-secondary">
-            <Link to={`/characters/${name}/pets/create`} className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>
+            <div className="col">
+            <Link to={`/characters/${name}/pets/create`} className="nav-link link-dark" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>
                 <button className="btn btn-success" style={{width: "100%"}}>New Pet</button>
             </Link>
             </div>
         </div>
-        <div className="row border border-success" style={{marginTop: "10px"}}>
-            <div className="col border border-secondary">
-                <button className="btn btn-primary" style={{width: "50%", marginLeft: "40%", textAlign: "center"}} onClick={deleteCharacter}>Delete Character</button>
+        <div className="row" style={{marginTop: "5px", marginBottom: "5px"}}>
+            <div className="col">
+                <button className="btn btn-primary" style={{width: "50%", marginLeft: "40%", textAlign: "center", height: "100%"}} onClick={deleteCharacter}>Delete Character</button>
             </div>
-            <div className="col border border-secondary">
-                <Link to="/characters" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "10%", textAlign: "center"}}><button className="btn btn-primary" style={{width: "100%"}} onClick={() => setCharacter(null)}>Back to Characters</button></Link>
+            <div className="col">
+                <Link to="/characters" className="nav-link link-dark" style={{width: "50%", marginLeft: "10%", textAlign: "center"}}><button className="btn btn-primary" style={{width: "100%"}} onClick={() => setCharacter(null)}>Back to Characters</button></Link>
             </div>
         </div>
     </div>

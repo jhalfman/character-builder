@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const EditCharacter = ( {setCharacter, character} ) => {
+const EditCharacter = ( {setCharacter, character, characters, setCharacters} ) => {
     const [newCharacterForm, setNewCharacterForm] = useState({
         name: character.name,
         hp: character.hp,
@@ -73,7 +73,16 @@ const EditCharacter = ( {setCharacter, character} ) => {
             .then(resp => {
                 if (resp.ok) {
                     resp.json().then(character => {
-                        console.log(character)
+                        setCharacter(character)
+                        const newCharacterList = characters.map(char => {
+                            if (character.id === char.id) {
+                                return character
+                            }
+                            else {
+                                return char
+                            }
+                        })
+                        setCharacters(newCharacterList)
                         navigate(`/characters/${character.name}`)
                     })
                 }

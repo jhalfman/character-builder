@@ -39,7 +39,7 @@ const UserHome = ( {characters, setCharacters} ) => {
                 <th scope="row">{index+1}</th>
                 <td>{character.name}</td>
                 <td>{character.money}</td>
-                <td>{character.experience/500}</td>
+                <td>{character.experience/500 + 1}</td>
               </tr>
             )
           }): null}
