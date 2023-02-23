@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { NavLink as Link} from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
@@ -6,6 +6,7 @@ import Modal from 'react-bootstrap/Modal';
 
 const Character = ( {setCharacters, characters, character, setCharacter} ) => {
     const [errors, setErrors] = useState(null)
+    const hunger = useRef(0)
     let {name} = useParams();
     const navigate = useNavigate()
     const [show, setShow] = useState(false);
@@ -15,13 +16,14 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
     const handleCloseDeleteCharacter = () => setShowDeleteCharacter(false);
     const handleShowDeleteCharacter = () => setShowDeleteCharacter(true);
     const [petForRelease, setPetForRelease] = useState(null)
+    
 
     useEffect(() => {
         fetch(`/characters/${name}`)
         .then(resp => {
             if (resp.ok) {
                 resp.json().then(character => {
-                    setCharacter(character)
+                    setCharacter({...character, pets: character.pets.sort(function(x, y) {return x.id - y.id})})
                 })
             }
             else {
@@ -31,6 +33,77 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
             }
         })
     }, [name, setCharacter])
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            hunger.current += 1
+            if (Math.floor(Math.random() * 100) + 1 > 95) {
+                const targetPet = character.pets[(Math.floor(Math.random() * character.pets.length))]
+                if (targetPet.energy > 0) {
+                    const newEnergy = {energy: targetPet.energy - 1}
+                    fetch(`/pets/${targetPet.id}`, {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(newEnergy)
+                    })
+                    .then(resp => {
+                        if (resp.ok) {
+                            resp.json().then(newPet => {
+                                const newPetArray = character.pets.map(pet => {
+                                    if (pet.id === newPet.id) {
+                                        return newPet
+                                    }
+                                    else return pet
+                                })
+                                setCharacter({...character, pets: newPetArray})
+                            })
+                        }
+                        else {
+                            resp.json().then(error => {
+                                setErrors(error)
+                            }) 
+                        }
+                    })
+                }
+            }
+            if (hunger.current === 3) {
+                const targetPet = character.pets[(Math.floor(Math.random() * character.pets.length))]
+                    if (targetPet.loyalty > 0) {
+                        const newLoyalty = {loyalty: targetPet.loyalty - 1}
+                        fetch(`/pets/${targetPet.id}`, {
+                            method: "PATCH",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(newLoyalty)
+                        })
+                        .then(resp => {
+                            if (resp.ok) {
+                                resp.json().then(newPet => {
+                                    const newPetArray = character.pets.map(pet => {
+                                        if (pet.id === newPet.id) {
+                                            return newPet
+                                        }
+                                        else return pet
+                                    })
+                                    setCharacter({...character, pets: newPetArray})
+                                })
+                            }
+                            else {
+                                resp.json().then(error => {
+                                    setErrors(error)
+                                }) 
+                            }
+                        })
+                    }
+                hunger.current = 0
+            }
+        }, 10000);
+      
+        return () => clearInterval(interval);
+      }, [character, setCharacter]);
 
     function deleteCharacter() {
         fetch(`/characters/${character.id}`, {
@@ -59,17 +132,85 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
             if (resp.ok) {
                     const newPets = character.pets.filter(pet => pet.id !== id)
                     setCharacter({...character, pets: newPets, money: character.money + 250})
-                    console.log(character)
             }
             else {
                 resp.json().then(error => {
-                    console.log(error)
                     setErrors(error)
                 }) 
             }
         })
         handleClose()
     }
+
+    function feedPet(pet) {
+        if (character.money >= 50 && pet.energy < 5) {
+            fetch(`/pets/${pet.id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({energy: pet.energy + 1})
+            })
+            .then(resp => {
+                if (resp.ok) {
+                    resp.json().then(newPet => {
+                        const newPetArray = character.pets.map(pet => {
+                            if (pet.id === newPet.id) {
+                                return newPet
+                            }
+                            else return pet
+                        })
+                        setCharacter({...character, pets: newPetArray, money: character.money - 50})
+                    })
+                }
+                else {
+                    resp.json().then(error => {
+                        setErrors(error)
+                    }) 
+                }
+            })
+        }
+        else if (character.money < 50) {
+            alert("Feeding pets costs 50 credits")
+        }
+        else {
+            alert("Pet is not hungry")
+        }
+    }
+
+    function petPet(pet) {
+        if (pet.loyalty < 5) {
+            fetch(`/pets/${pet.id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({loyalty: pet.loyalty + 1})
+            })
+            .then(resp => {
+                if (resp.ok) {
+                    resp.json().then(newPet => {
+                        const newPetArray = character.pets.map(pet => {
+                            if (pet.id === newPet.id) {
+                                return newPet
+                            }
+                            else return pet
+                        })
+                        setCharacter({...character, pets: newPetArray})
+                    })
+                }
+                else {
+                    resp.json().then(error => {
+                        setErrors(error)
+                    }) 
+                }
+            })
+        }
+        else {
+            alert("Pet already loves you!")
+        }
+    }
+    
 
     
 if (!character) {
@@ -99,17 +240,27 @@ if (!character) {
             <div className="col-4 border border-info" style={{overflowY: "auto", height: "700px"}}>
                 <h3 className='border-bottom border-primary' style={{textAlign: "center", marginTop: "10px", paddingBottom: "10px"}}>{character.name}'s Pets</h3>
                 {character ? character.pets.map(pet => {
+                    const energyHearts = [];
+                    const affectionHearts = [];
+                    for (let i = 0; i < pet.loyalty; i++) {
+                        affectionHearts.push(<span key={i} style={{disply: "inline"}}>&#x1F497;</span>)
+                    }
+                    for (let i = 0; i < pet.energy; i++) {
+                        energyHearts.push(<span style={{disply: "inline"}}>&#x1F497;</span>)
+                    }
                     return (
                     <div key={pet.name} className='' style={{padding: "5%"}}>
                         <h5 style={{textAlign: "center"}}>{pet.name}</h5>
                         <img src={`${pet.pet_archetype.image_url}`} style={{width: "50%", marginLeft: "25%"}} alt={pet.name}></img>
                         <div className=''>
-                            <button type="button" className="btn btn-primary" style={{width: "25%", marginLeft: "6.25%"}}>Pet</button>
-                            <button type="button" className="btn btn-primary" style={{width: "25%", marginLeft: "6.25%"}}>Feed</button>
+                            <button type="button" className="btn btn-primary" style={{width: "25%", marginLeft: "6.25%"}} onClick={() => petPet(pet)}>Pet</button>
+                            <button type="button" className="btn btn-primary" style={{width: "25%", marginLeft: "6.25%"}} onClick={() => feedPet(pet)}>Feed(-50)</button>
                             <button type="button" className="btn btn-primary" style={{width: "25%", marginLeft: "6.25%"}} onClick={() => {setPetForRelease(pet); handleShow()}}>Release</button>
                         </div>
-                        <div style={{marginTop: "5px"}}>
-                            Happiness: &#128151; &#128151; &#128151; &#128151; &#128151; &#128151; &#128151; &#128151;
+                        <div style={{marginTop: "5px"}}>                     
+                            Hunger: {energyHearts}
+                            <br></br>
+                            Affection: {affectionHearts}
                         </div>
                     </div>
                     )
