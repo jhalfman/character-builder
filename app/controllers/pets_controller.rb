@@ -1,7 +1,9 @@
 class PetsController < ApplicationController
 
     def create
-        pet = Pet.create(pet_params)
+        pet = Pet.create!(pet_params)
+        character = Character.find(params[:character_id])
+        character.update(money: money - 500)
         render json: pet, status: :created
     end
 
