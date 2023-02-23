@@ -7,6 +7,8 @@ import Modal from 'react-bootstrap/Modal';
 const Character = ( {setCharacters, characters, character, setCharacter} ) => {
     const [errors, setErrors] = useState(null)
     const hunger = useRef(0)
+    const petCount = useRef(0)
+    const pettingTarget = useRef(null)
     let {name} = useParams();
     const navigate = useNavigate()
     const [show, setShow] = useState(false);
@@ -179,35 +181,49 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
     }
 
     function petPet(pet) {
-        if (pet.loyalty < 5) {
-            fetch(`/pets/${pet.id}`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({loyalty: pet.loyalty + 1})
-            })
-            .then(resp => {
-                if (resp.ok) {
-                    resp.json().then(newPet => {
-                        const newPetArray = character.pets.map(pet => {
-                            if (pet.id === newPet.id) {
-                                return newPet
-                            }
-                            else return pet
-                        })
-                        setCharacter({...character, pets: newPetArray})
-                    })
-                }
-                else {
-                    resp.json().then(error => {
-                        setErrors(error)
-                    }) 
-                }
-            })
+        if (pettingTarget.current === null) {
+            pettingTarget.current = pet.id
+            petCount.current += 1
+        }
+        else if (pettingTarget.current === pet.id && petCount.current < 9) {
+            petCount.current += 1
+        }
+        else if (pettingTarget.current !== pet.id) {
+            pettingTarget.current = pet.id
+            petCount.current = 1
         }
         else {
-            alert("Pet already loves you!")
+            if (pet.loyalty < 5) {
+                fetch(`/pets/${pet.id}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({loyalty: pet.loyalty + 1})
+                })
+                .then(resp => {
+                    if (resp.ok) {
+                        resp.json().then(newPet => {
+                            const newPetArray = character.pets.map(pet => {
+                                if (pet.id === newPet.id) {
+                                    return newPet
+                                }
+                                else return pet
+                            })
+                            setCharacter({...character, pets: newPetArray})
+                        })
+                    }
+                    else {
+                        resp.json().then(error => {
+                            setErrors(error)
+                        }) 
+                    }
+                })
+                petCount.current = 0
+            }
+            else {
+                alert("Pet already loves you!")
+            }
         }
     }
     
