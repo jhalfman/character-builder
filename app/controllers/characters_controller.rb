@@ -10,6 +10,13 @@ class CharactersController < ApplicationController
         render json: character, include: ["pets", "pets.pet_archetype"], status: :ok
     end
 
+    def update
+        character = current_user.characters.find_by_name(params[:original_name])
+        character.update(character_params)
+        character.update(money: character.money - 500)
+        render json: character, include: ["pets", "pets.pet_archetype"], status: :ok
+    end
+
     def destroy
         character = Character.find(params[:id])
         character.destroy

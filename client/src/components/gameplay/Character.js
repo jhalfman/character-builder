@@ -67,7 +67,7 @@ if (!character) {
   return (
     <div className="container border border-primary">
         {errors ? errors.map(error => <div className="errors" key={error}>{error}</div>) : null}
-        <div className="row border border-success">
+        <div className="row border border-success align-items-center">
             <div className="col-8 border border-warning">
                 <h3 style={{textAlign: "center"}}>{character.name}</h3>
                 <img src={character.avatar_url} style={{width: "40%", marginLeft: "30%"}} alt={character.name}></img>
@@ -106,7 +106,7 @@ if (!character) {
         </div>
         <div className="row border border-success">
             <div className="col border border-secondary">
-            <Link to="" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>Edit Stats (500 credits)</Link>
+            <Link to={`/characters/${name}/edit`} className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}><button className="btn btn-success" style={{width: "100%"}}>Edit Stats</button></Link>
             </div>
             <div className="col border border-secondary">
             <Link to="" className="nav-link link-dark border border-danger" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>Dive!</Link>
