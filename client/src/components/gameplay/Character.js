@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { NavLink as Link} from 'react-router-dom';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 
 const Character = ( {setCharacters, characters, character, setCharacter} ) => {
     const [errors, setErrors] = useState(null)
     let {name} = useParams();
     const navigate = useNavigate()
+    const [show, setShow] = useState(false);
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+    const [showDeleteCharacter, setShowDeleteCharacter] = useState(false);
+    const handleCloseDeleteCharacter = () => setShowDeleteCharacter(false);
+    const handleShowDeleteCharacter = () => setShowDeleteCharacter(true);
+    const [petForRelease, setPetForRelease] = useState(null)
 
     useEffect(() => {
         fetch(`/characters/${name}`)
@@ -39,6 +48,7 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
                 }) 
             }
         })
+        handleClose()
     }
 
     function releasePet(id) {
@@ -58,7 +68,9 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
                 }) 
             }
         })
+        handleClose()
     }
+
     
 if (!character) {
     return <div>Loading Character...</div>
@@ -94,7 +106,7 @@ if (!character) {
                         <div className=''>
                             <button type="button" className="btn btn-primary" style={{width: "25%", marginLeft: "6.25%"}}>Pet</button>
                             <button type="button" className="btn btn-primary" style={{width: "25%", marginLeft: "6.25%"}}>Feed</button>
-                            <button type="button" className="btn btn-primary" style={{width: "25%", marginLeft: "6.25%"}} onClick={() => releasePet(pet.id)}>Release</button>
+                            <button type="button" className="btn btn-primary" style={{width: "25%", marginLeft: "6.25%"}} onClick={() => {setPetForRelease(pet); handleShow()}}>Release</button>
                         </div>
                         <div style={{marginTop: "5px"}}>
                             Happiness: &#128151; &#128151; &#128151; &#128151; &#128151; &#128151; &#128151; &#128151;
@@ -119,12 +131,43 @@ if (!character) {
         </div>
         <div className="row" style={{marginTop: "5px", marginBottom: "5px"}}>
             <div className="col">
-                <button className="btn btn-primary" style={{width: "50%", marginLeft: "40%", textAlign: "center", height: "100%"}} onClick={deleteCharacter}>Delete Character</button>
+                <button className="btn btn-primary" style={{width: "50%", marginLeft: "40%", textAlign: "center", height: "100%"}} onClick={handleShowDeleteCharacter}>Delete Character</button>
             </div>
             <div className="col">
                 <Link to="/characters" className="nav-link link-dark" style={{width: "50%", marginLeft: "10%", textAlign: "center"}}><button className="btn btn-primary" style={{width: "100%"}} onClick={() => setCharacter(null)}>Back to Characters</button></Link>
             </div>
         </div>
+
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Release Confirmation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{petForRelease ? `Are you sure you want to release ${petForRelease.name}? You will receive 250 credits in return.` : null}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={() => releasePet(petForRelease.id)}>
+            Release Pet
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showDeleteCharacter} onHide={handleCloseDeleteCharacter}>
+        <Modal.Header closeButton>
+          <Modal.Title>Character Delete Confirmation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete {character.name}?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={() => deleteCharacter()}>
+            Delete Character
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </div>
   )
 }

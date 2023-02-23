@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 
 const EditCharacter = ( {setCharacter, character, characters, setCharacters} ) => {
     const [newCharacterForm, setNewCharacterForm] = useState({
@@ -14,6 +16,9 @@ const EditCharacter = ( {setCharacter, character, characters, setCharacters} ) =
     const [attributePoints, setAttributePoints] = useState(0)
     const [errors, setErrors] = useState(null)
     const navigate = useNavigate()
+    const [show, setShow] = useState(false);
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
 
     function editNewCharacterForm(e) {
         if (e.target.id === "name" || e.target.id === "avatar_url") {
@@ -94,6 +99,7 @@ const EditCharacter = ( {setCharacter, character, characters, setCharacters} ) =
                 }
             })
         }
+        handleClose();
     }
 
   return (
@@ -137,9 +143,24 @@ const EditCharacter = ( {setCharacter, character, characters, setCharacters} ) =
         <p className="fs-5" style={{width: "25%", marginLeft: "27%"}}>Cost: 500 credits</p>
         <p className="fs-5" style={{width: "25%", marginLeft: "5%"}}>Available funds: {character.money} credits</p>
         </div>
-        <button type="submit" className="btn btn-primary" style={{width: "50%", marginLeft: "25%"}}>Update Character</button>
+        <button type="button" className="btn btn-primary" style={{width: "50%", marginLeft: "25%"}} onClick={handleShow}>Update Character</button>
       </form>
       <button type="button" className="btn btn-warning" style={{width: "30%", marginLeft: "35%", marginTop: "20px", marginBottom: "20px"}} onClick={() => navigate(`/characters/${character.name}`)}>Back to Character</button>
+
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Update Confirmation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to edit your character?  This will cost 500 credits.</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={updateCharacter}>
+            Update Character
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   )
 }
