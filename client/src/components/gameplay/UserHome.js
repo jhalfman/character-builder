@@ -11,7 +11,7 @@ const UserHome = ( {characters, setCharacters} ) => {
             navigate(`/login`)
         }
         else if (!characters) {
-            setCharacters(user.characters)
+            setCharacters(user.characters.sort(function(x, y) {return x.id - y.id}))
             // fetch user data
         }
         else {
