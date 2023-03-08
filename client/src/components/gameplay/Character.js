@@ -262,7 +262,7 @@ if (!character) {
                         affectionHearts.push(<span key={i} style={{disply: "inline"}}>&#x1F497;</span>)
                     }
                     for (let i = 0; i < pet.energy; i++) {
-                        energyHearts.push(<span style={{disply: "inline"}}>&#x1F497;</span>)
+                        energyHearts.push(<span key={i} style={{disply: "inline"}}>&#x1F497;</span>)
                     }
                     return (
                     <div key={pet.name} className='' style={{padding: "5%"}}>
@@ -288,7 +288,7 @@ if (!character) {
             <Link to={`/characters/${name}/edit`} className="nav-link link-dark" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}><button className="btn btn-success" style={{width: "100%"}}>Edit Stats</button></Link>
             </div>
             <div className="col">
-            <Link to="" className="nav-link link-dark" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>Dive!</Link>
+            <Link to={`/characters/${name}/dive`} className="nav-link link-dark" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}><button className="btn btn-success" style={{width: "100%"}}>Dive!</button></Link>
             </div>
             <div className="col">
             <Link to={`/characters/${name}/pets/create`} className="nav-link link-dark" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}>
