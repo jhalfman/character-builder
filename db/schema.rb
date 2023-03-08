@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_03_08_163649) do
+ActiveRecord::Schema.define(version: 2023_03_08_224344) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -38,16 +38,17 @@ ActiveRecord::Schema.define(version: 2023_03_08_163649) do
     t.integer "enemies_slain", default: 0
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "current", default: true
     t.index ["character_id"], name: "index_dives_on_character_id"
   end
 
   create_table "enemies", force: :cascade do |t|
     t.bigint "dive_id", null: false
     t.bigint "enemy_archetype_id", null: false
-    t.integer "hp"
-    t.integer "attack"
-    t.integer "defense"
-    t.integer "speed"
+    t.float "hp"
+    t.float "attack"
+    t.float "defense"
+    t.float "speed"
     t.integer "level", default: 1
     t.boolean "boss", default: false
     t.datetime "created_at", precision: 6, null: false
