@@ -29,7 +29,7 @@ const NewCharacter = ( {setCharacters, characters} ) => {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({...newCharacterForm, avatar_url: "https://i.imgur.com/Y5Efdki.png"})
+                body: JSON.stringify({...newCharacterForm, avatar_url: "https://i.imgur.com/Y5Efdki.png", current_hp: newCharacterForm.hp})
             })
             .then(resp => {
                 if (resp.ok) {
@@ -54,7 +54,7 @@ const NewCharacter = ( {setCharacters, characters} ) => {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(newCharacterForm)
+                body: JSON.stringify({...newCharacterForm, current_hp: newCharacterForm.hp})
             })
             .then(resp => {
                 if (resp.ok) {

@@ -41,7 +41,7 @@ function App() {
       <Routes>
         <Route path='/characters' element={<UserHome characters={characters} setCharacters={setCharacters}/>} />
         <Route path='/characters/:name' element={<Character setCharacters={setCharacters} characters={characters} character={character} setCharacter={setCharacter}/>} />
-        <Route path='/characters/:name/dive' element={<Dive character={character}/>} />
+        <Route path='/characters/:name/dive' element={<Dive character={character} setCharacter={setCharacter}/>} />
         <Route path='/characters/:name/edit' element={<EditCharacter character={character} setCharacter={setCharacter} setCharacters={setCharacters} characters={characters}/>} />
         <Route path='/characters/create' element={<NewCharacter setCharacters={setCharacters} characters={characters}/>} />
         <Route path='/pets' element={<PetTypes petTypes={petTypes}/>} />

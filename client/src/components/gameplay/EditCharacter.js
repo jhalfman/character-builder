@@ -73,7 +73,7 @@ const EditCharacter = ( {setCharacter, character, characters, setCharacters} ) =
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({...newCharacterForm, original_name: character.name})
+                body: JSON.stringify({...newCharacterForm, current_hp: newCharacterForm.hp})
             })
             .then(resp => {
                 if (resp.ok) {

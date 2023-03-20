@@ -11,9 +11,16 @@ class CharactersController < ApplicationController
     end
 
     def update
-        character = current_user.characters.find_by_name(params[:original_name])
-        character.update(character_params)
-        character.update(money: character.money - 500)
+        character = Character.find(params[:id])
+        character.update!(character_params)
+        if character_params[:luck]
+            character.update!(character_params)
+            character.update!(money: character.money - 500)
+        elsif character_params[:current_hp] <= 0
+            character.update!(current_hp: character.hp)
+        else
+            character.update!(character_params) 
+        end
         render json: character, include: ["pets", "pets.pet_archetype"], status: :ok
     end
 
@@ -26,6 +33,6 @@ class CharactersController < ApplicationController
     private
 
     def character_params
-        params.permit(:name, :hp, :attack, :defense, :speed, :luck, :avatar_url)
+        params.permit(:name, :hp, :attack, :defense, :speed, :luck, :avatar_url, :current_hp)
     end
 end

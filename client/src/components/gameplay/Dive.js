@@ -5,8 +5,10 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
+import { useNavigate } from 'react-router-dom';
 
-const Dive = ( { character }) => {
+const Dive = ( { character, setCharacter }) => {
+  const navigate = useNavigate()
   const [currentLevel, setCurrentLevel] = useState(null)
   const [currentDirections, setCurrentDirections] = useState("Choose your battle actions")
   const [currentDive, setCurrentDive] = useState(null)
@@ -20,6 +22,9 @@ const Dive = ( { character }) => {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+  const [showEnd, setShowEnd] = useState(false);
+  const handleCloseEnd = () => setShowEnd(false);
+  const handleShowEnd = () => setShowEnd(true);
   const [turn, setTurn] = useState(true)
   const [diveStats, setDiveStats] = useState({
     teamAttack: 0,
@@ -296,7 +301,56 @@ const Dive = ( { character }) => {
         }
       }
     })
-    // fetch(`/character/${character.id}`)
+    if (returnDamage > 0) {
+      fetch(`/characters/${character.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({current_hp: character.hp - returnDamage})
+      })
+      .then(resp => {
+        if (resp.ok) {
+          resp.json().then(char => {
+            if (char.current_hp > character.current_hp) {
+              setCharacter({...character, current_hp: 0})
+              handleShowEnd()
+            }
+            else {
+              setCharacter(character)
+            }
+          })
+        }
+        else {
+            resp.json().then(error => {
+                setErrors(error)
+            }) 
+        }
+      })
+    }
+  }
+
+  function completeDive() {
+    fetch(`/dives/${currentDive}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({money_reward: currentLevel * 100, experience_reward: currentLevel * 50, current: false})
+    })
+    .then(resp => {
+      if (resp.ok) {
+        resp.json().then(character => {
+          setCurrentDive(null)
+          navigate(`/characters/${character.name}`)
+        })
+      }
+      else {
+          resp.json().then(error => {
+              setErrors(error)
+          }) 
+      }
+    })
   }
 
     if (!character) {
@@ -344,7 +398,7 @@ const Dive = ( { character }) => {
       </Row>
       <Row>
         <Col className='border border-primary'>{currentEnemies.length > 0 ? <Row style={{paddingTop: "5px", paddingBottom: "5px"}}><Button style={{width: "25%", marginLeft: "5%"}} onClick={singleTarget}>Attack Single</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={attackMultiple}>Attack Multiple</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={defendAttack}>Defend</Button></Row> : null}
-        <Row><h4>hp: {character.hp}</h4></Row>
+        <Row><h4>hp: {Math.round(character.current_hp * 100)/100}</h4></Row>
         </Col>
         <Col xs={2} className='border border-primary'>2 of 3 (wider)</Col>
         <Col className='border border-primary'>3 of 3</Col>
@@ -361,6 +415,25 @@ const Dive = ( { character }) => {
           </Button>
           <Button variant="primary" onClick={createDive}>
             Start Dive
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showEnd} onHide={handleCloseEnd}>
+        <Modal.Header closeButton>
+          <Modal.Title>You've Been Defeated!</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <h4>Dive Stats</h4>
+          <ul>
+            <li>Money earned: {currentLevel * 100} credits</li>
+            <li>Experience gained: {currentLevel * 50}</li>
+            <li>Enemies defeated: </li>
+          </ul>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={completeDive}>
+            Complete Dive
           </Button>
         </Modal.Footer>
       </Modal>

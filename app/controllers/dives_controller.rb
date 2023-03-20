@@ -23,6 +23,6 @@ class DivesController < ApplicationController
     private
 
     def dive_params
-        params.permit(:character_id, :pet_id_1, :pet_id_2, :level_reached)
+        params.permit(:character_id, :pet_id_1, :pet_id_2, :level_reached, :money_reward, :experience_reward, :current)
     end
 end
