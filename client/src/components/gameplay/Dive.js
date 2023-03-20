@@ -286,7 +286,7 @@ const Dive = ( { character, setCharacter }) => {
     enemyList.forEach(enemy => {
       if (defense) {
         if (enemy.attack > diveStats.teamDefense) {
-          console.log(enemy.attack - diveStats.teamDefense, "A")
+          returnDamage += enemy.attack - diveStats.teamDefense
         }
         else {
           console.log(enemy.attack - diveStats.teamDefense, "B")
@@ -294,10 +294,11 @@ const Dive = ( { character, setCharacter }) => {
       }
       else {
         if (enemy.attack > diveStats.teamDefense/5) {
+          console.log(enemy.attack, diveStats.teamDefense/5)
           returnDamage += enemy.attack - diveStats.teamDefense/5
         }
         else {
-          console.log(enemy.attack - diveStats.teamDefense/5, "2")
+          console.log(enemy.attack, diveStats.teamDefense/5, "2")
         }
       }
     })
@@ -317,7 +318,7 @@ const Dive = ( { character, setCharacter }) => {
               handleShowEnd()
             }
             else {
-              setCharacter(character)
+              setCharacter(char)
             }
           })
         }
@@ -340,8 +341,9 @@ const Dive = ( { character, setCharacter }) => {
     })
     .then(resp => {
       if (resp.ok) {
-        resp.json().then(character => {
+        resp.json().then(dive => {
           setCurrentDive(null)
+          console.log(character.name)
           navigate(`/characters/${character.name}`)
         })
       }

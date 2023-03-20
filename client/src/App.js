@@ -37,7 +37,7 @@ function App() {
   
   return (
     <div className="bg-primary-subtle border border-primary">
-      <Navbar />
+      <Navbar setCharacters={setCharacters}/>
       <Routes>
         <Route path='/characters' element={<UserHome characters={characters} setCharacters={setCharacters}/>} />
         <Route path='/characters/:name' element={<Character setCharacters={setCharacters} characters={characters} character={character} setCharacter={setCharacter}/>} />

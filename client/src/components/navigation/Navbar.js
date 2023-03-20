@@ -2,13 +2,14 @@ import React, { useContext } from 'react';
 import { NavLink as Link} from 'react-router-dom';
 import { UserContext } from '../context/user.js';
 
-const Navbar = () => {
+const Navbar = ( { setCharacters } ) => {
     const {user, setUser} = useContext(UserContext);
 
     function logout() {
         fetch(`/logout`, {
             method: "DELETE"
           })
+        setCharacters(null)
         setUser(null)
     }
 
