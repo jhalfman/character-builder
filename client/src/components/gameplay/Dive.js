@@ -10,7 +10,7 @@ const Dive = ( { character }) => {
   const [currentLevel, setCurrentLevel] = useState(null)
   const [currentDirections, setCurrentDirections] = useState("Choose your battle actions")
   const [currentDive, setCurrentDive] = useState(null)
-  const [currentEnemies, setCurrentEnemies] = useState(null)
+  const [currentEnemies, setCurrentEnemies] = useState([])
   const [selectPetsForm, setSelectPetsForm] = useState({
     pet_id_1: null,
     pet_id_2: null
@@ -40,7 +40,7 @@ const Dive = ( { character }) => {
               setCurrentLevel(dive.level_reached)
               const newPetList = character.pets.filter(pet => pet.id === dive.pet_id_1 || pet.id === dive.pet_id_2)
               setCurrentPets(newPetList)
-              updateDiveStats()
+              updateDiveStats(newPetList)
             })
         }
         else {
@@ -67,7 +67,7 @@ const Dive = ( { character }) => {
             setCurrentLevel(1)
             const newPetList = character.pets.filter(pet => pet.id === dive.pet_id_1 || pet.id === dive.pet_id_2)
             setCurrentPets(newPetList)
-            updateDiveStats()
+            updateDiveStats(newPetList)
             handleClose();
           })
       }
@@ -171,13 +171,13 @@ const Dive = ( { character }) => {
     }
   }
 
-  function updateDiveStats() {
+  function updateDiveStats(pets) {
     let newAttack = character.attack
     let newDefense = character.defense
     let newSpeed = character.speed
     let newLuck = character.luck
 
-    currentPets.forEach(pet => {
+    pets.forEach(pet => {
       newAttack += pet.pet_archetype.attack * (pet.energy + pet.loyalty)
       newDefense += pet.pet_archetype.defense * (pet.energy + pet.loyalty)
       newSpeed += pet.pet_archetype.speed * (pet.energy + pet.loyalty)
@@ -223,7 +223,7 @@ const Dive = ( { character }) => {
               {!currentDive ? character.pets ? character.pets.map(pet => {
                 return <Form.Check key={pet.name} disabled={(selectPetsForm.pet_id_1 && selectPetsForm.pet_id_2) ? (parseInt(selectPetsForm.pet_id_1) === pet.id || parseInt(selectPetsForm.pet_id_2) === pet.id) ? false : true : false} type={'checkbox'} id={pet.id} label={<img src={pet.pet_archetype.image_url} alt={pet.name} style={{width: "80%", marginLeft: "10%"}}></img>} value={pet.id} onChange={selectPet}/>
               }) : null : character.pets.map(pet => {
-                if (pet.id === selectPetsForm.pet_id_1 || pet.id === selectPetsForm.pet_id_2) {
+                if (pet.id === parseInt(selectPetsForm.pet_id_1) || pet.id === parseInt(selectPetsForm.pet_id_2)) {
                   return <img key={pet.name} src={pet.pet_archetype.image_url} alt={pet.name} style={{width: "80%", marginLeft: "10%"}}></img>
                 }
                 else return null
@@ -232,7 +232,7 @@ const Dive = ( { character }) => {
             </Col>
             <Col className='border border-primary align-self-center'>
               <img src={character.avatar_url} alt={character.name} style={{width: "80%", marginLeft: "10%"}} key={character.name}></img>
-              {currentEnemies ? <Row><Button style={{width: "35%", marginLeft: "10%"}} onClick={attackSingle}>Attack Single</Button><Button style={{width: "35%", marginLeft: "10%"}} onClick={attackMultiple}>Attack Multiple</Button></Row> : null}
+              {currentEnemies.length > 0 ? <Row><Button style={{width: "35%", marginLeft: "10%"}} onClick={attackSingle}>Attack Single</Button><Button style={{width: "35%", marginLeft: "10%"}} onClick={attackMultiple}>Attack Multiple</Button></Row> : null}
             </Col>
           </Row>
         </Col>
@@ -241,7 +241,7 @@ const Dive = ( { character }) => {
             <p style={{textAlign: "center"}}>{currentDive ? currentDirections : "Choose companions and then click button for new adventure"}</p>
           </Row>
           <Row>
-            {currentDive ? currentEnemies ? null : <Button variant="warning" className='border border-dark' onClick={generateEnemies}>Generate Enemies</Button> : <Button variant="warning" className='border border-dark' onClick={handleShow}>Begin Dive</Button>}
+            {currentDive ? currentEnemies.length !== 0 ? null : <Button variant="warning" className='border border-dark' onClick={generateEnemies}>Generate Enemies</Button> : <Button variant="warning" className='border border-dark' onClick={handleShow}>Begin Dive</Button>}
           </Row>
         </Col>
         <Col className='border border-primary align-self-center'>
