@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   
   resources :enemies, only: [:create, :update, :destroy]
-  resources :dives, only: [:create]
+  resources :dives, only: [:create, :update]
   resources :pets, only: [:create, :destroy, :update]
   resources :enemy_archetypes, only: [:index]
   resources :pet_archetypes, only: [:index]

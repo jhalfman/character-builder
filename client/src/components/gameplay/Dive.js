@@ -27,6 +27,8 @@ const Dive = ( { character }) => {
     teamSpeed: 0,
     teamLuck: 0
   })
+  const [targetSelect, setTargetSelect] = useState(false)
+  const [defending, setDefending] = useState(false)
 
   useEffect(() => {
     if (character) {
@@ -40,6 +42,7 @@ const Dive = ( { character }) => {
               setCurrentLevel(dive.level_reached)
               const newPetList = character.pets.filter(pet => pet.id === dive.pet_id_1 || pet.id === dive.pet_id_2)
               setCurrentPets(newPetList)
+              setCurrentDirections("Choose an attack type")
               updateDiveStats(newPetList)
             })
         }
@@ -93,7 +96,7 @@ const Dive = ( { character }) => {
       if (resp.ok) {
           resp.json().then(enemies => {
             console.log(enemies)
-            setCurrentDirections("Choose an attack type and target")
+            setCurrentDirections("Choose an attack type")
             setCurrentEnemies(enemies)
           })
       }
@@ -141,8 +144,7 @@ const Dive = ( { character }) => {
     })
     .then(resp => {
       if (resp.ok) {
-          const updatedEnemies = currentEnemies.filter(enemy => enemy.id !== id)
-          setCurrentEnemies(updatedEnemies)
+          console.log("Enemy Defeated!")
       }
       else {
           resp.json().then(error => {
@@ -190,11 +192,51 @@ const Dive = ( { character }) => {
     })
   }
 
-  function attackSingle() {
-    console.log(diveStats, character, currentPets, currentEnemies)
+  function singleTarget() {
+    setTargetSelect(true)
+    setCurrentDirections("Select single target")
   }
 
+  function attackSingle(enemy) {
+    if (enemy.hp > (diveStats.teamAttack - enemy.defense)) {
+      const damage = enemy.hp - (diveStats.teamAttack - enemy.defense)
+      damageEnemy(enemy.id, damage)
+      enemyAttack(currentEnemies, false)
+    }
+    else {
+      killEnemy(enemy.id)
+      const updatedEnemies = currentEnemies.filter(e => e.id !== enemy.id)
+      setCurrentEnemies(updatedEnemies)
+      if (updatedEnemies.length === 0) {
+        setCurrentDirections(`${currentLevel} completed! Click to start level ${currentLevel + 1}`)
+        fetch(`/dives/${currentDive}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({level_reached: currentLevel + 1})
+        })
+        .then(resp => {
+          if (resp.ok) {
+                setCurrentLevel(currentLevel + 1)
+          }
+          else {
+              resp.json().then(error => {
+                  setErrors(error)
+              }) 
+          }
+        })
+      }
+      else {
+        enemyAttack(updatedEnemies, false)
+      }
+    }
+    setTargetSelect(false)
+  }
+
+
   function attackMultiple() {
+    let updatedEnemies = [...currentEnemies]
     currentEnemies.forEach(enemy => {
       if (enemy.hp > (diveStats.teamAttack - enemy.defense)) {
         const damage = enemy.hp - (diveStats.teamAttack - enemy.defense)
@@ -202,8 +244,59 @@ const Dive = ( { character }) => {
       }
       else {
         killEnemy(enemy.id)
+        updatedEnemies = updatedEnemies.filter(e => e.id !== enemy.id)
       }
     })
+    setCurrentEnemies(updatedEnemies)
+    if (updatedEnemies.length === 0) {
+      setCurrentDirections(`${currentLevel} completed! Click to start level ${currentLevel + 1}`)
+      fetch(`/dives/${currentDive}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({level_reached: currentLevel + 1})
+      })
+      .then(resp => {
+        if (resp.ok) {
+              setCurrentLevel(currentLevel + 1)
+        }
+        else {
+            resp.json().then(error => {
+                setErrors(error)
+            }) 
+        }
+      })
+    }
+    else enemyAttack(updatedEnemies, false)
+  }
+
+  function defendAttack() {
+    setDefending(true);
+    enemyAttack(currentEnemies, true);
+  }
+  
+  function enemyAttack(enemyList, defense) {
+    let returnDamage = 0;
+    enemyList.forEach(enemy => {
+      if (defense) {
+        if (enemy.attack > diveStats.teamDefense) {
+          console.log(enemy.attack - diveStats.teamDefense, "A")
+        }
+        else {
+          console.log(enemy.attack - diveStats.teamDefense, "B")
+        }
+      }
+      else {
+        if (enemy.attack > diveStats.teamDefense/5) {
+          returnDamage += enemy.attack - diveStats.teamDefense/5
+        }
+        else {
+          console.log(enemy.attack - diveStats.teamDefense/5, "2")
+        }
+      }
+    })
+    // fetch(`/character/${character.id}`)
   }
 
     if (!character) {
@@ -218,7 +311,7 @@ const Dive = ( { character }) => {
       <Row>
         <Col className='border border-primary'>
           <Row className='border border-info'>
-            <Col xs={4} className='border border-dark'>
+            <Col xs={4} className='border border-dark align-self-center'>
               <Form>
               {!currentDive ? character.pets ? character.pets.map(pet => {
                 return <Form.Check key={pet.name} disabled={(selectPetsForm.pet_id_1 && selectPetsForm.pet_id_2) ? (parseInt(selectPetsForm.pet_id_1) === pet.id || parseInt(selectPetsForm.pet_id_2) === pet.id) ? false : true : false} type={'checkbox'} id={pet.id} label={<img src={pet.pet_archetype.image_url} alt={pet.name} style={{width: "80%", marginLeft: "10%"}}></img>} value={pet.id} onChange={selectPet}/>
@@ -232,7 +325,6 @@ const Dive = ( { character }) => {
             </Col>
             <Col className='border border-primary align-self-center'>
               <img src={character.avatar_url} alt={character.name} style={{width: "80%", marginLeft: "10%"}} key={character.name}></img>
-              {currentEnemies.length > 0 ? <Row><Button style={{width: "35%", marginLeft: "10%"}} onClick={attackSingle}>Attack Single</Button><Button style={{width: "35%", marginLeft: "10%"}} onClick={attackMultiple}>Attack Multiple</Button></Row> : null}
             </Col>
           </Row>
         </Col>
@@ -246,12 +338,14 @@ const Dive = ( { character }) => {
         </Col>
         <Col className='border border-primary align-self-center'>
               {currentEnemies ? currentEnemies.map(enemy => {
-                return <Row key={enemy.id} className='border border-primary' ><img src={enemy.enemy_archetype.image_url} alt={enemy.enemy_archetype.name} style={{width: "20%", marginLeft: "40%"}}></img><h4 style={{width: "20%"}}>hp: {enemy.hp}</h4></Row>
+                return <Row key={enemy.id} className='border border-primary' ><img src={enemy.enemy_archetype.image_url} alt={enemy.enemy_archetype.name} style={{width: "20%", marginLeft: "40%"}} onClick={targetSelect ? () => attackSingle(enemy) : null}></img><h4 style={{width: "20%"}}>hp: {enemy.hp}</h4></Row>
               }) : null}
         </Col>
       </Row>
       <Row>
-        <Col className='border border-primary'>1 of 2</Col>
+        <Col className='border border-primary'>{currentEnemies.length > 0 ? <Row style={{paddingTop: "5px", paddingBottom: "5px"}}><Button style={{width: "25%", marginLeft: "5%"}} onClick={singleTarget}>Attack Single</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={attackMultiple}>Attack Multiple</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={defendAttack}>Defend</Button></Row> : null}
+        <Row><h4>hp: {character.hp}</h4></Row>
+        </Col>
         <Col xs={2} className='border border-primary'>2 of 3 (wider)</Col>
         <Col className='border border-primary'>3 of 3</Col>
       </Row>
