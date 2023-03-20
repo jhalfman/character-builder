@@ -10,9 +10,21 @@ class EnemiesController < ApplicationController
         render json: enemies, status: :created
     end
 
+    def update
+        enemy = Enemy.find(params[:id])
+        enemy.update!(enemy_params)
+        render json: enemy, status: :ok
+    end
+
+    def destroy
+        enemy = Enemy.find(params[:id])
+        enemy.destroy
+        head :no_content
+    end
+
     private
 
     def enemy_params
-        params.permit(:level, :dive_id)
+        params.permit(:level, :dive_id, :hp)
     end
 end

@@ -15,11 +15,18 @@ const Dive = ( { character }) => {
     pet_id_1: null,
     pet_id_2: null
   })
+  const [currentPets, setCurrentPets] = useState([])
   const [errors, setErrors] = useState(null)
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-
+  const [turn, setTurn] = useState(true)
+  const [diveStats, setDiveStats] = useState({
+    teamAttack: 0,
+    teamDefense: 0,
+    teamSpeed: 0,
+    teamLuck: 0
+  })
 
   useEffect(() => {
     if (character) {
@@ -28,8 +35,12 @@ const Dive = ( { character }) => {
         if (resp.ok) {
             resp.json().then(dive => {
               setSelectPetsForm({pet_id_1: dive.pet_id_1, pet_id_2: dive.pet_id_2})
+              setCurrentEnemies(dive.enemies)
               setCurrentDive(dive.id)
               setCurrentLevel(dive.level_reached)
+              const newPetList = character.pets.filter(pet => pet.id === dive.pet_id_1 || pet.id === dive.pet_id_2)
+              setCurrentPets(newPetList)
+              updateDiveStats()
             })
         }
         else {
@@ -54,6 +65,9 @@ const Dive = ( { character }) => {
           resp.json().then(dive => {
             setCurrentDive(dive.id)
             setCurrentLevel(1)
+            const newPetList = character.pets.filter(pet => pet.id === dive.pet_id_1 || pet.id === dive.pet_id_2)
+            setCurrentPets(newPetList)
+            updateDiveStats()
             handleClose();
           })
       }
@@ -68,7 +82,6 @@ const Dive = ( { character }) => {
 
   function generateEnemies() {
     const numberOfEnemies = Math.floor(Math.random() * 3) + 1
-    console.log(currentDive, character.id)
     fetch(`/enemies`, {
       method: "POST",
       headers: {
@@ -80,7 +93,56 @@ const Dive = ( { character }) => {
       if (resp.ok) {
           resp.json().then(enemies => {
             console.log(enemies)
+            setCurrentDirections("Choose an attack type and target")
+            setCurrentEnemies(enemies)
           })
+      }
+      else {
+          resp.json().then(error => {
+              setErrors(error)
+          }) 
+      }
+    })
+  }
+
+  function damageEnemy(id, newHp) {
+    fetch(`/enemies/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({hp: newHp})
+    })
+    .then(resp => {
+      if (resp.ok) {
+          resp.json().then(enemy => {
+            const updatedEnemies = currentEnemies.map(e => {
+              if (e.id === enemy.id) {
+                return enemy
+              }
+              else {
+                return e
+              }
+            })
+            setCurrentEnemies(updatedEnemies)
+          })
+      }
+      else {
+          resp.json().then(error => {
+              setErrors(error)
+          }) 
+      }
+    })
+  }
+
+  function killEnemy(id) {
+    fetch(`/enemies/${id}`, {
+      method: "DELETE"
+    })
+    .then(resp => {
+      if (resp.ok) {
+          const updatedEnemies = currentEnemies.filter(enemy => enemy.id !== id)
+          setCurrentEnemies(updatedEnemies)
       }
       else {
           resp.json().then(error => {
@@ -107,7 +169,42 @@ const Dive = ( { character }) => {
         setSelectPetsForm({...selectPetsForm, pet_id_2: null})
       }
     }
-  }    
+  }
+
+  function updateDiveStats() {
+    let newAttack = character.attack
+    let newDefense = character.defense
+    let newSpeed = character.speed
+    let newLuck = character.luck
+
+    currentPets.forEach(pet => {
+      newAttack += pet.pet_archetype.attack * (pet.energy + pet.loyalty)
+      newDefense += pet.pet_archetype.defense * (pet.energy + pet.loyalty)
+      newSpeed += pet.pet_archetype.speed * (pet.energy + pet.loyalty)
+    })
+    setDiveStats({
+      teamAttack: newAttack,
+      teamDefense: newDefense,
+      teamSpeed: newSpeed,
+      teamLuck: newLuck
+    })
+  }
+
+  function attackSingle() {
+    console.log(diveStats, character, currentPets, currentEnemies)
+  }
+
+  function attackMultiple() {
+    currentEnemies.forEach(enemy => {
+      if (enemy.hp > (diveStats.teamAttack - enemy.defense)) {
+        const damage = enemy.hp - (diveStats.teamAttack - enemy.defense)
+        damageEnemy(enemy.id, damage)
+      }
+      else {
+        killEnemy(enemy.id)
+      }
+    })
+  }
 
     if (!character) {
       return <div>Loading Character...</div>
@@ -135,6 +232,7 @@ const Dive = ( { character }) => {
             </Col>
             <Col className='border border-primary align-self-center'>
               <img src={character.avatar_url} alt={character.name} style={{width: "80%", marginLeft: "10%"}} key={character.name}></img>
+              {currentEnemies ? <Row><Button style={{width: "35%", marginLeft: "10%"}} onClick={attackSingle}>Attack Single</Button><Button style={{width: "35%", marginLeft: "10%"}} onClick={attackMultiple}>Attack Multiple</Button></Row> : null}
             </Col>
           </Row>
         </Col>
@@ -143,10 +241,14 @@ const Dive = ( { character }) => {
             <p style={{textAlign: "center"}}>{currentDive ? currentDirections : "Choose companions and then click button for new adventure"}</p>
           </Row>
           <Row>
-            {currentDive ? <Button variant="warning" className='border border-dark' onClick={generateEnemies}>Generate Enemies</Button> : <Button variant="warning" className='border border-dark' onClick={handleShow}>Begin Dive</Button>}
+            {currentDive ? currentEnemies ? null : <Button variant="warning" className='border border-dark' onClick={generateEnemies}>Generate Enemies</Button> : <Button variant="warning" className='border border-dark' onClick={handleShow}>Begin Dive</Button>}
           </Row>
         </Col>
-        <Col className='border border-primary'>2 of 2</Col>
+        <Col className='border border-primary align-self-center'>
+              {currentEnemies ? currentEnemies.map(enemy => {
+                return <Row key={enemy.id} className='border border-primary' ><img src={enemy.enemy_archetype.image_url} alt={enemy.enemy_archetype.name} style={{width: "20%", marginLeft: "40%"}}></img><h4 style={{width: "20%"}}>hp: {enemy.hp}</h4></Row>
+              }) : null}
+        </Col>
       </Row>
       <Row>
         <Col className='border border-primary'>1 of 2</Col>

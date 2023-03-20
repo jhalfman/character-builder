@@ -8,7 +8,7 @@ class DivesController < ApplicationController
     def index
         dive = Dive.where(character_id: params[:character_id], current: true).first
         if dive
-            render json: dive, status: :ok
+            render json: dive, include: ["enemies", "enemies.enemy_archetype"], status: :ok
         else
             render json: {error: "Not found"}, status: :not_found
         end
