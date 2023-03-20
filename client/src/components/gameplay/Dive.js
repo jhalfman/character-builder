@@ -3,13 +3,23 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Modal from 'react-bootstrap/Modal';
 
 const Dive = ( { character }) => {
   const [currentLevel, setCurrentLevel] = useState(null)
   const [currentDirections, setCurrentDirections] = useState("Choose your battle actions")
   const [currentDive, setCurrentDive] = useState(null)
   const [currentEnemies, setCurrentEnemies] = useState(null)
+  const [selectPetsForm, setSelectPetsForm] = useState({
+    pet_id_1: null,
+    pet_id_2: null
+  })
   const [errors, setErrors] = useState(null)
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
 
   useEffect(() => {
     if (character) {
@@ -17,7 +27,7 @@ const Dive = ( { character }) => {
       .then(resp => {
         if (resp.ok) {
             resp.json().then(dive => {
-              console.log(dive)
+              setSelectPetsForm({pet_id_1: dive.pet_id_1, pet_id_2: dive.pet_id_2})
               setCurrentDive(dive.id)
               setCurrentLevel(dive.level_reached)
             })
@@ -37,18 +47,20 @@ const Dive = ( { character }) => {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({character_id: character.id})
+      body: JSON.stringify({character_id: character.id, ...selectPetsForm})
     })
     .then(resp => {
       if (resp.ok) {
           resp.json().then(dive => {
             setCurrentDive(dive.id)
             setCurrentLevel(1)
+            handleClose();
           })
       }
       else {
           resp.json().then(error => {
               setErrors(error)
+              handleClose();
           }) 
       }
     })
@@ -77,7 +89,25 @@ const Dive = ( { character }) => {
       }
     })
   }
-    
+
+  function selectPet(e) {
+    if (e.target.checked) {
+      if (!selectPetsForm.pet_id_1) {
+        setSelectPetsForm({...selectPetsForm, pet_id_1: e.target.id})
+      }
+      else {
+        setSelectPetsForm({...selectPetsForm, pet_id_2: e.target.id})
+      }
+    }
+    else {
+      if (selectPetsForm.pet_id_1 === e.target.id) {
+        setSelectPetsForm({...selectPetsForm, pet_id_1: null})
+      }
+      else {
+        setSelectPetsForm({...selectPetsForm, pet_id_2: null})
+      }
+    }
+  }    
 
     if (!character) {
       return <div>Loading Character...</div>
@@ -92,21 +122,28 @@ const Dive = ( { character }) => {
         <Col className='border border-primary'>
           <Row className='border border-info'>
             <Col xs={4} className='border border-dark'>
-              {character.pets ? character.pets.map(pet => {
-                return <img src={pet.pet_archetype.image_url} alt={pet.name} style={{width: "80%"}} key={pet.name}></img>
-              }) : null}
+              <Form>
+              {!currentDive ? character.pets ? character.pets.map(pet => {
+                return <Form.Check key={pet.name} disabled={(selectPetsForm.pet_id_1 && selectPetsForm.pet_id_2) ? (parseInt(selectPetsForm.pet_id_1) === pet.id || parseInt(selectPetsForm.pet_id_2) === pet.id) ? false : true : false} type={'checkbox'} id={pet.id} label={<img src={pet.pet_archetype.image_url} alt={pet.name} style={{width: "80%", marginLeft: "10%"}}></img>} value={pet.id} onChange={selectPet}/>
+              }) : null : character.pets.map(pet => {
+                if (pet.id === selectPetsForm.pet_id_1 || pet.id === selectPetsForm.pet_id_2) {
+                  return <img key={pet.name} src={pet.pet_archetype.image_url} alt={pet.name} style={{width: "80%", marginLeft: "10%"}}></img>
+                }
+                else return null
+              })}
+              </Form>
             </Col>
-            <Col>
-              <img src={character.avatar_url} alt={character.name} style={{width: "80%"}} key={character.name}></img>
+            <Col className='border border-primary align-self-center'>
+              <img src={character.avatar_url} alt={character.name} style={{width: "80%", marginLeft: "10%"}} key={character.name}></img>
             </Col>
           </Row>
         </Col>
         <Col xs={2} className='border border-primary align-self-center'>
           <Row>
-            <p style={{textAlign: "center"}}>{currentDive ? currentDirections : "Click button for new adventure"}</p>
+            <p style={{textAlign: "center"}}>{currentDive ? currentDirections : "Choose companions and then click button for new adventure"}</p>
           </Row>
           <Row>
-            {currentDive ? <Button variant="warning" className='border border-dark' onClick={generateEnemies}>Generate Enemies</Button> : <Button variant="warning" className='border border-dark' onClick={createDive}>Begin Dive</Button>}
+            {currentDive ? <Button variant="warning" className='border border-dark' onClick={generateEnemies}>Generate Enemies</Button> : <Button variant="warning" className='border border-dark' onClick={handleShow}>Begin Dive</Button>}
           </Row>
         </Col>
         <Col className='border border-primary'>2 of 2</Col>
@@ -116,6 +153,21 @@ const Dive = ( { character }) => {
         <Col xs={2} className='border border-primary'>2 of 3 (wider)</Col>
         <Col className='border border-primary'>3 of 3</Col>
       </Row>
+
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Start New Dive</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to begin a new dive with the selected pets?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={createDive}>
+            Start Dive
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   )
 }

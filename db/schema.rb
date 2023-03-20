@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_03_08_224344) do
+ActiveRecord::Schema.define(version: 2023_03_20_145800) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -39,6 +39,8 @@ ActiveRecord::Schema.define(version: 2023_03_08_224344) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "current", default: true
+    t.integer "pet_id_1"
+    t.integer "pet_id_2"
     t.index ["character_id"], name: "index_dives_on_character_id"
   end
 
