@@ -7,7 +7,7 @@ import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import { useNavigate, NavLink as Link } from 'react-router-dom';
 
-const Dive = ( { character, setCharacter }) => {
+const Dive = ( { character, setCharacter, setCharacters, characters }) => {
   const navigate = useNavigate()
   const [currentLevel, setCurrentLevel] = useState(null)
   const [currentDirections, setCurrentDirections] = useState("Choose your battle actions")
@@ -360,6 +360,15 @@ const Dive = ( { character, setCharacter }) => {
       if (resp.ok) {
           resp.json().then(dive => {
             setEnemiesKilled(dive.enemies_slain)
+            const newCharacters = characters.map(char => {
+              if (char.id !== character.id) {
+                return char
+              }
+              else {
+                return {...character, money: character.money + (currentLevel * 100), experience: character.experience + (enemiesKilled * 50)}
+              }
+            })
+            setCharacters(newCharacters)
             setCurrentDive(null)
           })
           
