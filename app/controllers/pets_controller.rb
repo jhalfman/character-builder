@@ -2,6 +2,7 @@ class PetsController < ApplicationController
 
     def create
         pet = Pet.create!(pet_params)
+        UserMailer.with(name: params[:name], type: pet.pet_archetype.name, description: pet.pet_archetype.description, email: pet.character.user.email).pet_welcome_email.deliver_now
         character = Character.find(params[:character_id])
         character.update(money: character.money - 500)
         render json: pet, status: :created

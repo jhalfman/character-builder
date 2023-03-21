@@ -2,7 +2,7 @@ class UsersController < ApplicationController
     skip_before_action :authenticate_user, only: [:create, :show]
 
     def create
-        UserMailer.with(email: params[:email]).welcome_email.deliver_now
+        UserMailer.with(email: params[:email], username: params[:username]).welcome_email.deliver_now
         user = User.create!(user_params)
         session[:user_id] = user.id
         render json: user, status: :created
