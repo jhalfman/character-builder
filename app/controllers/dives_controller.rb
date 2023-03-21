@@ -16,6 +16,10 @@ class DivesController < ApplicationController
     
     def update
         dive = Dive.find(params[:id])
+        if params[:money_reward]
+            character = dive.character
+            character.update!(money: params[:money_reward] + character.money, experience: params[:experience_reward] + character.experience, current_hp: character.hp)
+        end
         dive.update!(dive_params)
         render json: dive, status: :ok
     end

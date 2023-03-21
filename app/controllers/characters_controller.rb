@@ -16,8 +16,6 @@ class CharactersController < ApplicationController
         if character_params[:luck]
             character.update!(character_params)
             character.update!(money: character.money - 500)
-        elsif character_params[:current_hp] <= 0
-            character.update!(current_hp: character.hp)
         else
             character.update!(character_params) 
         end

@@ -5,7 +5,7 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavLink as Link } from 'react-router-dom';
 
 const Dive = ( { character, setCharacter }) => {
   const navigate = useNavigate()
@@ -34,6 +34,7 @@ const Dive = ( { character, setCharacter }) => {
   })
   const [targetSelect, setTargetSelect] = useState(false)
   const [defending, setDefending] = useState(false)
+  const [enemiesKilled, setEnemiesKilled] = useState(0)
 
   useEffect(() => {
     if (character) {
@@ -73,6 +74,7 @@ const Dive = ( { character, setCharacter }) => {
           resp.json().then(dive => {
             setCurrentDive(dive.id)
             setCurrentLevel(1)
+            setEnemiesKilled(0)
             const newPetList = character.pets.filter(pet => pet.id === dive.pet_id_1 || pet.id === dive.pet_id_2)
             setCurrentPets(newPetList)
             updateDiveStats(newPetList)
@@ -124,15 +126,7 @@ const Dive = ( { character, setCharacter }) => {
     .then(resp => {
       if (resp.ok) {
           resp.json().then(enemy => {
-            const updatedEnemies = currentEnemies.map(e => {
-              if (e.id === enemy.id) {
-                return enemy
-              }
-              else {
-                return e
-              }
-            })
-            setCurrentEnemies(updatedEnemies)
+            return enemy
           })
       }
       else {
@@ -149,6 +143,7 @@ const Dive = ( { character, setCharacter }) => {
     })
     .then(resp => {
       if (resp.ok) {
+          setEnemiesKilled(enemiesKilled => enemiesKilled + 1)
           console.log("Enemy Defeated!")
       }
       else {
@@ -203,10 +198,21 @@ const Dive = ( { character, setCharacter }) => {
   }
 
   function attackSingle(enemy) {
-    if (enemy.hp > (diveStats.teamAttack - enemy.defense)) {
+    if (diveStats.teamAttack < enemy.defense) {
+      console.log("no damage")
+      return null
+    }
+    else if (enemy.hp > (diveStats.teamAttack - enemy.defense)) {
       const damage = enemy.hp - (diveStats.teamAttack - enemy.defense)
       damageEnemy(enemy.id, damage)
-      enemyAttack(currentEnemies, false)
+      const updatedEnemies = currentEnemies.map(e => {
+        if (e.id === enemy.id) {
+          return {...enemy, hp: damage}
+        }
+        else return e
+      })
+      setCurrentEnemies(updatedEnemies)
+      enemyAttack(updatedEnemies, false)
     }
     else {
       killEnemy(enemy.id)
@@ -243,9 +249,18 @@ const Dive = ( { character, setCharacter }) => {
   function attackMultiple() {
     let updatedEnemies = [...currentEnemies]
     currentEnemies.forEach(enemy => {
-      if (enemy.hp > (diveStats.teamAttack - enemy.defense)) {
+      if (diveStats.teamAttack < enemy.defense) {
+        return null
+      }
+      else if (enemy.hp > (diveStats.teamAttack - enemy.defense)) {
         const damage = enemy.hp - (diveStats.teamAttack - enemy.defense)
         damageEnemy(enemy.id, damage)
+        updatedEnemies = updatedEnemies.map(e => {
+          if (e.id === enemy.id) {
+            return {...enemy, hp: damage}
+          }
+          else return e
+        })
       }
       else {
         killEnemy(enemy.id)
@@ -273,7 +288,9 @@ const Dive = ( { character, setCharacter }) => {
         }
       })
     }
-    else enemyAttack(updatedEnemies, false)
+    else {
+      enemyAttack(updatedEnemies, false)
+    }
   }
 
   function defendAttack() {
@@ -289,16 +306,15 @@ const Dive = ( { character, setCharacter }) => {
           returnDamage += enemy.attack - diveStats.teamDefense
         }
         else {
-          console.log(enemy.attack - diveStats.teamDefense, "B")
+          console.log(enemy, "Defense is too high")
         }
       }
       else {
         if (enemy.attack > diveStats.teamDefense/5) {
-          console.log(enemy.attack, diveStats.teamDefense/5)
           returnDamage += enemy.attack - diveStats.teamDefense/5
         }
         else {
-          console.log(enemy.attack, diveStats.teamDefense/5, "2")
+          console.log(enemy, "Defense is too high")
         }
       }
     })
@@ -308,13 +324,14 @@ const Dive = ( { character, setCharacter }) => {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({current_hp: character.hp - returnDamage})
+        body: JSON.stringify({current_hp: character.current_hp - returnDamage})
       })
       .then(resp => {
         if (resp.ok) {
           resp.json().then(char => {
-            if (char.current_hp > character.current_hp) {
+            if (char.current_hp <=0) {
               setCharacter({...character, current_hp: 0})
+              completeDive()
               handleShowEnd()
             }
             else {
@@ -337,15 +354,15 @@ const Dive = ( { character, setCharacter }) => {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({money_reward: currentLevel * 100, experience_reward: currentLevel * 50, current: false})
+      body: JSON.stringify({money_reward: currentLevel * 100, experience_reward: enemiesKilled * 50, current: false})
     })
     .then(resp => {
       if (resp.ok) {
-        resp.json().then(dive => {
-          setCurrentDive(null)
-          console.log(character.name)
-          navigate(`/characters/${character.name}`)
-        })
+          resp.json().then(dive => {
+            setEnemiesKilled(dive.enemies_slain)
+            setCurrentDive(null)
+          })
+          
       }
       else {
           resp.json().then(error => {
@@ -362,7 +379,7 @@ const Dive = ( { character, setCharacter }) => {
   return (
     <Container fluid>
       <Row className='border border-warning'>
-        {currentLevel ? `Current Level: ${currentLevel}` : "Initializing Dive Attempt..."}
+        {currentLevel ? `Current Level: ${currentLevel} | Enemies Killed: ${enemiesKilled}` : "Initializing Dive Attempt..."}
       </Row>
       <Row>
         <Col className='border border-primary'>
@@ -394,7 +411,7 @@ const Dive = ( { character, setCharacter }) => {
         </Col>
         <Col className='border border-primary align-self-center'>
               {currentEnemies ? currentEnemies.map(enemy => {
-                return <Row key={enemy.id} className='border border-primary' ><img src={enemy.enemy_archetype.image_url} alt={enemy.enemy_archetype.name} style={{width: "20%", marginLeft: "40%"}} onClick={targetSelect ? () => attackSingle(enemy) : null}></img><h4 style={{width: "20%"}}>hp: {enemy.hp}</h4></Row>
+                return <Row key={enemy.id} className='border border-primary' ><img src={enemy.enemy_archetype.image_url} alt={enemy.enemy_archetype.name} style={{width: "20%", marginLeft: "40%"}} onClick={targetSelect ? () => attackSingle(enemy) : null}></img><h4 style={{width: "20%"}}>hp: {Math.round(enemy.hp * 100)/100}</h4></Row>
               }) : null}
         </Col>
       </Row>
@@ -403,7 +420,7 @@ const Dive = ( { character, setCharacter }) => {
         <Row><h4>hp: {Math.round(character.current_hp * 100)/100}</h4></Row>
         </Col>
         <Col xs={2} className='border border-primary'>2 of 3 (wider)</Col>
-        <Col className='border border-primary'>3 of 3</Col>
+        <Col className='border border-primary'><Link to={`/characters/${character.name}`} className="nav-link link-dark" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}><button className="btn btn-primary" style={{width: "100%"}}>Back to Character</button></Link></Col>
       </Row>
 
       <Modal show={show} onHide={handleClose}>
@@ -429,12 +446,12 @@ const Dive = ( { character, setCharacter }) => {
           <h4>Dive Stats</h4>
           <ul>
             <li>Money earned: {currentLevel * 100} credits</li>
-            <li>Experience gained: {currentLevel * 50}</li>
-            <li>Enemies defeated: </li>
+            <li>Experience gained: {enemiesKilled * 50}</li>
+            <li>Enemies defeated: {enemiesKilled}</li>
           </ul>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={completeDive}>
+          <Button variant="primary" onClick={() => navigate(`/characters/${character.name}`)}>
             Complete Dive
           </Button>
         </Modal.Footer>

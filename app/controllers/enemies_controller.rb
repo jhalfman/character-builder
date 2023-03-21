@@ -18,6 +18,8 @@ class EnemiesController < ApplicationController
 
     def destroy
         enemy = Enemy.find(params[:id])
+        dive = enemy.dive
+        dive.update!(enemies_slain: dive.enemies_slain + 1)
         enemy.destroy
         head :no_content
     end
