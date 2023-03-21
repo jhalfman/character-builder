@@ -6,7 +6,7 @@ class CharactersController < ApplicationController
     end
 
     def show
-        character = current_user.characters.find_by_name(params[:name])
+        character = current_user.characters.find_by_name!(params[:name])
         render json: character, include: ["pets", "pets.pet_archetype"], status: :ok
     end
 

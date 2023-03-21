@@ -25,12 +25,12 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
         .then(resp => {
             if (resp.ok) {
                 resp.json().then(character => {
-                    console.log(character)
                     setCharacter({...character, pets: character.pets.sort(function(x, y) {return x.id - y.id})})
                 })
             }
             else {
                 resp.json().then(error => {
+                    console.log(error)
                     setErrors(error)
                 }) 
             }

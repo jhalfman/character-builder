@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 
 const EditCharacter = ( {setCharacter, character, characters, setCharacters} ) => {
     const [newCharacterForm, setNewCharacterForm] = useState({
-        name: character.name,
-        hp: character.hp,
-        attack: character.attack,
-        defense: character.defense,
-        speed: character.speed,
-        luck: character.luck,
-        avatar_url: character.avatar_url
+        name: "",
+        hp: 0,
+        attack: 0,
+        defense: 0,
+        speed: 0,
+        luck: 0,
+        avatar_url: ""
     })
     const [attributePoints, setAttributePoints] = useState(0)
     const [errors, setErrors] = useState(null)
@@ -19,6 +19,20 @@ const EditCharacter = ( {setCharacter, character, characters, setCharacters} ) =
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+
+    useEffect(() => {
+        if (character) {
+            setNewCharacterForm({
+                name: character.name,
+                hp: character.hp,
+                attack: character.attack,
+                defense: character.defense,
+                speed: character.speed,
+                luck: character.luck,
+                avatar_url: character.avatar_url
+            })
+        }
+    }, [character])
 
     function editNewCharacterForm(e) {
         if (e.target.id === "name" || e.target.id === "avatar_url") {
@@ -141,7 +155,7 @@ const EditCharacter = ( {setCharacter, character, characters, setCharacters} ) =
         </div>
         <div className="row border-top border-primary" style={{paddingTop: "10px", width: "75%", marginLeft: "12.5%"}}>
         <p className="fs-5" style={{width: "25%", marginLeft: "27%"}}>Cost: 500 credits</p>
-        <p className="fs-5" style={{width: "25%", marginLeft: "5%"}}>Available funds: {character.money} credits</p>
+        <p className="fs-5" style={{width: "25%", marginLeft: "5%"}}>Available funds: {character ? character.money : null} credits</p>
         </div>
         <button type="button" className="btn btn-primary" style={{width: "50%", marginLeft: "25%"}} onClick={handleShow}>Update Character</button>
       </form>

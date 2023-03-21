@@ -1,4 +1,5 @@
 class UsersController < ApplicationController
+    skip_before_action :authenticate_user, only: [:create, :show]
 
     def create
         UserMailer.with(email: params[:email]).welcome_email.deliver_now
