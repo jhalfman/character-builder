@@ -6,6 +6,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import { useNavigate, NavLink as Link } from 'react-router-dom';
+import 'animate.css';
 
 const Dive = ( { character, setCharacter, setCharacters, characters }) => {
   const navigate = useNavigate()
@@ -32,11 +33,14 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
     attack: 0,
     defense: 0,
     speed: 0,
-    luck: 0
+    luck: 0,
+    id: 0
   })
   const [targetSelect, setTargetSelect] = useState(false)
   const [enemiesKilled, setEnemiesKilled] = useState(0)
   const [attackOrder, setAttackOrder] = useState(null)
+  const [attackDisabled, setAttackDisabled] = useState(true)
+
 
   useEffect(() => {
     if (character) {
@@ -107,9 +111,8 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
           resp.json().then(enemies => {
             console.log(enemies)
             const combatList = [{...diveStats}, ...enemies].sort(function(x, y) {return y.speed - x.speed})
-            console.log(combatList)
-            // sort(function(x, y) {return x.id - y.id})
-            setCurrentDirections("Choose an attack type")
+            setAttackOrder(combatList)
+            combatCycle(combatList)
             setCurrentEnemies(enemies)
           })
       }
@@ -119,6 +122,27 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
           }) 
       }
     })
+  }
+
+  //attackOrder is state; combatList is not
+  function combatCycle(combatList) {
+    if (combatList[0].id === 0) {
+      userAttacks();
+    }
+    else {
+      enemyAttacks(combatList);
+    }
+  }
+
+  function userAttacks() {
+    setCurrentDirections("Choose an attack type")
+    setAttackDisabled(false)    
+  }
+
+  function enemyAttacks(combatList) {
+    console.log(combatList)
+    setCurrentDirections("Wait while enemies take their turn")
+    setAttackDisabled(true)
   }
 
   function damageEnemy(id, newHp) {
@@ -194,7 +218,8 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
       attack: newAttack,
       defense: newDefense,
       speed: newSpeed,
-      luck: newLuck
+      luck: newLuck,
+      id: 0
     })
   }
 
@@ -209,16 +234,19 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
       return null
     }
     else if (enemy.hp > (diveStats.attack - enemy.defense)) {
-      const damage = enemy.hp - (diveStats.attack - enemy.defense)
-      damageEnemy(enemy.id, damage)
+      const remainingHealth = enemy.hp - (diveStats.attack - enemy.defense)
+      damageEnemy(enemy.id, remainingHealth)
       const updatedEnemies = currentEnemies.map(e => {
         if (e.id === enemy.id) {
-          return {...enemy, hp: damage}
+          return {...enemy, hp: remainingHealth}
         }
         else return e
       })
       setCurrentEnemies(updatedEnemies)
-      enemyAttack(updatedEnemies, false)
+      const newOrder = [...attackOrder]
+      newOrder.push(newOrder.shift())
+      setAttackOrder(newOrder)
+      combatCycle(newOrder)
     }
     else {
       killEnemy(enemy.id)
@@ -245,113 +273,116 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
         })
       }
       else {
-        enemyAttack(updatedEnemies, false)
+        const newOrder = attackOrder.filter(character => character.id !== enemy.id)
+        newOrder.push(newOrder.shift())
+        setAttackOrder(newOrder)
+        combatCycle(newOrder)
       }
     }
     setTargetSelect(false)
   }
 
 
-  function attackMultiple() {
-    let updatedEnemies = [...currentEnemies]
-    currentEnemies.forEach(enemy => {
-      if (diveStats.attack < enemy.defense) {
-        return null
-      }
-      else if (enemy.hp > (diveStats.attack - enemy.defense)) {
-        const damage = enemy.hp - (diveStats.attack - enemy.defense)
-        damageEnemy(enemy.id, damage)
-        updatedEnemies = updatedEnemies.map(e => {
-          if (e.id === enemy.id) {
-            return {...enemy, hp: damage}
-          }
-          else return e
-        })
-      }
-      else {
-        killEnemy(enemy.id)
-        updatedEnemies = updatedEnemies.filter(e => e.id !== enemy.id)
-      }
-    })
-    setCurrentEnemies(updatedEnemies)
-    if (updatedEnemies.length === 0) {
-      setCurrentDirections(`${currentLevel} completed! Click to start level ${currentLevel + 1}`)
-      fetch(`/dives/${currentDive}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({level_reached: currentLevel + 1})
-      })
-      .then(resp => {
-        if (resp.ok) {
-              setCurrentLevel(currentLevel + 1)
-        }
-        else {
-            resp.json().then(error => {
-                setErrors(error)
-            }) 
-        }
-      })
-    }
-    else {
-      enemyAttack(updatedEnemies, false)
-    }
-  }
+  // function attackMultiple() {
+  //   let updatedEnemies = [...currentEnemies]
+  //   currentEnemies.forEach(enemy => {
+  //     if (diveStats.attack < enemy.defense) {
+  //       return null
+  //     }
+  //     else if (enemy.hp > (diveStats.attack - enemy.defense)) {
+  //       const damage = enemy.hp - (diveStats.attack - enemy.defense)
+  //       damageEnemy(enemy.id, damage)
+  //       updatedEnemies = updatedEnemies.map(e => {
+  //         if (e.id === enemy.id) {
+  //           return {...enemy, hp: damage}
+  //         }
+  //         else return e
+  //       })
+  //     }
+  //     else {
+  //       killEnemy(enemy.id)
+  //       updatedEnemies = updatedEnemies.filter(e => e.id !== enemy.id)
+  //     }
+  //   })
+  //   setCurrentEnemies(updatedEnemies)
+  //   if (updatedEnemies.length === 0) {
+  //     setCurrentDirections(`${currentLevel} completed! Click to start level ${currentLevel + 1}`)
+  //     fetch(`/dives/${currentDive}`, {
+  //       method: "PATCH",
+  //       headers: {
+  //         "Content-Type": "application/json"
+  //       },
+  //       body: JSON.stringify({level_reached: currentLevel + 1})
+  //     })
+  //     .then(resp => {
+  //       if (resp.ok) {
+  //             setCurrentLevel(currentLevel + 1)
+  //       }
+  //       else {
+  //           resp.json().then(error => {
+  //               setErrors(error)
+  //           }) 
+  //       }
+  //     })
+  //   }
+  //   else {
+  //     enemyAttack(updatedEnemies, false)
+  //   }
+  // }
 
-  function defendAttack() {
-    enemyAttack(currentEnemies, true);
-  }
+  // function defendAttack() {
+  //   enemyAttack(currentEnemies, true);
+  // }
   
-  function enemyAttack(enemyList, defense) {
-    let returnDamage = 0;
-    enemyList.forEach(enemy => {
-      if (defense) {
-        if (enemy.attack > diveStats.defense) {
-          returnDamage += enemy.attack - diveStats.defense
-        }
-        else {
-          console.log(enemy, "Defense is too high")
-        }
-      }
-      else {
-        if (enemy.attack > diveStats.defense/5) {
-          returnDamage += enemy.attack - diveStats.defense/5
-        }
-        else {
-          console.log(enemy, "Defense is too high")
-        }
-      }
-    })
-    if (returnDamage > 0) {
-      fetch(`/characters/${character.id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({current_hp: character.current_hp - returnDamage})
-      })
-      .then(resp => {
-        if (resp.ok) {
-          resp.json().then(char => {
-            if (char.current_hp <=0) {
-              setCharacter({...character, current_hp: 0})
-              completeDive()
-              handleShowEnd()
-            }
-            else {
-              setCharacter(char)
-            }
-          })
-        }
-        else {
-            resp.json().then(error => {
-                setErrors(error)
-            }) 
-        }
-      })
-    }
-  }
+  // function enemyAttack(enemyList, defense) {
+  //   let returnDamage = 0;
+  //   enemyList.forEach(enemy => {
+  //     if (defense) {
+  //       if (enemy.attack > diveStats.defense) {
+  //         returnDamage += enemy.attack - diveStats.defense
+  //       }
+  //       else {
+  //         console.log(enemy, "Defense is too high")
+  //       }
+  //     }
+  //     else {
+  //       if (enemy.attack > diveStats.defense/5) {
+  //         returnDamage += enemy.attack - diveStats.defense/5
+  //       }
+  //       else {
+  //         console.log(enemy, "Defense is too high")
+  //       }
+  //     }
+  //   })
+  //   if (returnDamage > 0) {
+  //     fetch(`/characters/${character.id}`, {
+  //       method: "PATCH",
+  //       headers: {
+  //         "Content-Type": "application/json"
+  //       },
+  //       body: JSON.stringify({current_hp: character.current_hp - returnDamage})
+  //     })
+  //     .then(resp => {
+  //       if (resp.ok) {
+  //         resp.json().then(char => {
+  //           if (char.current_hp <=0) {
+  //             setCharacter({...character, current_hp: 0})
+  //             completeDive()
+  //             handleShowEnd()
+  //           }
+  //           else {
+  //             setCharacter(char)
+  //           }
+  //         })
+  //       }
+  //       else {
+  //           resp.json().then(error => {
+  //               setErrors(error)
+  //           }) 
+  //       }
+  //     })
+  //   }
+  // }
 
   function completeDive() {
     fetch(`/dives/${currentDive}`, {
@@ -391,7 +422,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
   }
 
   return (
-    <Container fluid>
+    <Container fluid className="animate__animated animate__bounce">
       <Row className='border border-warning'>
         {currentLevel ? `Current Level: ${currentLevel} | Enemies Killed: ${enemiesKilled}` : "Initializing Dive Attempt..."}
       </Row>
@@ -425,12 +456,15 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
         </Col>
         <Col className='border border-primary align-self-center'>
               {currentEnemies ? currentEnemies.map(enemy => {
-                return <Row key={enemy.id} className='border border-primary' ><img src={enemy.enemy_archetype.image_url} alt={enemy.enemy_archetype.name} style={{width: "20%", marginLeft: "40%"}} onClick={targetSelect ? () => attackSingle(enemy) : null}></img><h4 style={{width: "20%"}}>hp: {Math.round(enemy.hp * 100)/100}</h4></Row>
+                return <Row key={enemy.id} className='border border-primary' ><img src={enemy.enemy_archetype.image_url} alt={enemy.enemy_archetype.name} style={{width: "20%", marginLeft: "40%"}} onClick={targetSelect ? () => attackSingle(enemy) : null} ></img><h4 style={{width: "20%"}}>hp: {Math.round(enemy.hp * 100)/100}</h4></Row>
               }) : null}
         </Col>
       </Row>
       <Row>
-        <Col className='border border-primary'>{currentEnemies.length > 0 ? <Row style={{paddingTop: "5px", paddingBottom: "5px"}}><Button style={{width: "25%", marginLeft: "5%"}} onClick={singleTarget}>Attack Single</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={attackMultiple}>Attack Multiple</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={defendAttack}>Defend</Button></Row> : null}
+        {/* <Col className='border border-primary'>{currentEnemies.length > 0 ? <Row style={{paddingTop: "5px", paddingBottom: "5px"}}><Button style={{width: "25%", marginLeft: "5%"}} onClick={singleTarget} disabled={attackDisabled}>Attack Single</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={attackMultiple} disabled={attackDisabled}>Attack Multiple</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={defendAttack} disabled={attackDisabled}>Defend</Button></Row> : null}
+        <Row><h4>hp: {Math.round(character.current_hp * 100)/100}</h4></Row>
+        </Col> */}
+        <Col className='border border-primary'>{currentEnemies.length > 0 ? <Row style={{paddingTop: "5px", paddingBottom: "5px"}}><Button style={{width: "25%", marginLeft: "5%"}} onClick={singleTarget} disabled={attackDisabled}>Attack Single</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={() => console.log("click")} disabled={attackDisabled}>Attack Multiple</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={() => console.log("click")} disabled={attackDisabled}>Defend</Button></Row> : null}
         <Row><h4>hp: {Math.round(character.current_hp * 100)/100}</h4></Row>
         </Col>
         <Col xs={2} className='border border-primary'>2 of 3 (wider)</Col>
