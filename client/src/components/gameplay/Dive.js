@@ -40,6 +40,8 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
   const [enemiesKilled, setEnemiesKilled] = useState(0)
   const [attackOrder, setAttackOrder] = useState(null)
   const [attackDisabled, setAttackDisabled] = useState(true)
+  const [defending, setDefending] = useState(false)
+  const [lastAction, setLastAction] = useState("")
 
 
   useEffect(() => {
@@ -98,6 +100,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
   }
 
   function generateEnemies() {
+    setLastAction("")
     const numberOfEnemies = Math.floor(Math.random() * 3) + 1
     fetch(`/enemies`, {
       method: "POST",
@@ -126,6 +129,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
 
   //attackOrder is state; combatList is not
   function combatCycle(combatList) {
+    console.log(combatList)
     if (combatList[0].id === 0) {
       userAttacks();
     }
@@ -136,13 +140,18 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
 
   function userAttacks() {
     setCurrentDirections("Choose an attack type")
+    setDefending(false)
     setAttackDisabled(false)    
   }
 
   function enemyAttacks(combatList) {
-    console.log(combatList)
     setCurrentDirections("Wait while enemies take their turn")
     setAttackDisabled(true)
+    document.getElementById(combatList[0].id).classList.add("animate__animated", "animate__bounce")
+    setTimeout(() => {
+      document.getElementById(combatList[0].id).classList.remove("animate__animated", "animate__bounce");
+      enemyAttack(combatList)
+    }, 2000)
   }
 
   function damageEnemy(id, newHp) {
@@ -174,7 +183,6 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
     .then(resp => {
       if (resp.ok) {
           setEnemiesKilled(enemiesKilled => enemiesKilled + 1)
-          console.log("Enemy Defeated!")
       }
       else {
           resp.json().then(error => {
@@ -228,12 +236,16 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
     setCurrentDirections("Select single target")
   }
 
-  function attackSingle(enemy) {
+  function attackSingle(e, enemy) {
     if (diveStats.attack < enemy.defense) {
-      console.log("no damage")
-      return null
+      setLastAction(enemy.enemy_archetype.name + " defended the attack!")
+      const newOrder = [...attackOrder]
+      newOrder.push(newOrder.shift())
+      setAttackOrder(newOrder)
+      combatCycle(newOrder)
     }
     else if (enemy.hp > (diveStats.attack - enemy.defense)) {
+      setLastAction(character.name + " dealt " + (diveStats.attack - enemy.defense) + " damage!")
       const remainingHealth = enemy.hp - (diveStats.attack - enemy.defense)
       damageEnemy(enemy.id, remainingHealth)
       const updatedEnemies = currentEnemies.map(e => {
@@ -249,6 +261,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
       combatCycle(newOrder)
     }
     else {
+      setLastAction(character.name + " defeated " + enemy.enemy_archetype.name + "!")
       killEnemy(enemy.id)
       const updatedEnemies = currentEnemies.filter(e => e.id !== enemy.id)
       setCurrentEnemies(updatedEnemies)
@@ -330,59 +343,64 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
   //   }
   // }
 
-  // function defendAttack() {
-  //   enemyAttack(currentEnemies, true);
-  // }
+  function defend() {
+    setDefending(true)
+    const newOrder = [...attackOrder]
+    newOrder.push(newOrder.shift())
+    setAttackOrder(newOrder)
+    combatCycle(newOrder)
+  }
   
-  // function enemyAttack(enemyList, defense) {
-  //   let returnDamage = 0;
-  //   enemyList.forEach(enemy => {
-  //     if (defense) {
-  //       if (enemy.attack > diveStats.defense) {
-  //         returnDamage += enemy.attack - diveStats.defense
-  //       }
-  //       else {
-  //         console.log(enemy, "Defense is too high")
-  //       }
-  //     }
-  //     else {
-  //       if (enemy.attack > diveStats.defense/5) {
-  //         returnDamage += enemy.attack - diveStats.defense/5
-  //       }
-  //       else {
-  //         console.log(enemy, "Defense is too high")
-  //       }
-  //     }
-  //   })
-  //   if (returnDamage > 0) {
-  //     fetch(`/characters/${character.id}`, {
-  //       method: "PATCH",
-  //       headers: {
-  //         "Content-Type": "application/json"
-  //       },
-  //       body: JSON.stringify({current_hp: character.current_hp - returnDamage})
-  //     })
-  //     .then(resp => {
-  //       if (resp.ok) {
-  //         resp.json().then(char => {
-  //           if (char.current_hp <=0) {
-  //             setCharacter({...character, current_hp: 0})
-  //             completeDive()
-  //             handleShowEnd()
-  //           }
-  //           else {
-  //             setCharacter(char)
-  //           }
-  //         })
-  //       }
-  //       else {
-  //           resp.json().then(error => {
-  //               setErrors(error)
-  //           }) 
-  //       }
-  //     })
-  //   }
-  // }
+  function enemyAttack(combatList) {
+    let returnDamage = 0;
+    if (defending) {
+      returnDamage = (combatList[0].attack - diveStats.defense)
+    }
+    else {
+      returnDamage = (combatList[0].attack - diveStats.defense/5)
+    }
+    if (returnDamage > 0) {
+      console.log(combatList[0], returnDamage, "in fetch")
+      fetch(`/characters/${character.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({current_hp: character.current_hp - returnDamage})
+      })
+      .then(resp => {
+        if (resp.ok) {
+          resp.json().then(char => {
+            if (char.current_hp <=0) {
+              setCharacter({...character, current_hp: 0})
+              completeDive()
+              handleShowEnd()
+            }
+            else {
+              setLastAction(combatList[0].enemy_archetype.name + " dealt " + Math.round(returnDamage * 100)/100 + " damage!")
+              setCharacter(char)
+              const newOrder = [...combatList]
+              newOrder.push(newOrder.shift())
+              setAttackOrder(newOrder)
+              combatCycle(newOrder)
+            }
+          })
+        }
+        else {
+            resp.json().then(error => {
+                setErrors(error)
+            }) 
+        }
+      })
+    }
+    else {
+      setLastAction(combatList[0].enemy_archetype.name + " dealt 0 damage!")
+      const newOrder = [...combatList]
+      newOrder.push(newOrder.shift())
+      setAttackOrder(newOrder)
+      combatCycle(newOrder)
+    }
+  }
 
   function completeDive() {
     fetch(`/dives/${currentDive}`, {
@@ -417,12 +435,17 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
     })
   }
 
+  function addAnimation(e) {
+    e.target.classList.add("animate__animated", "animate__bounce")
+    setTimeout(() => e.target.classList.remove("animate__animated", "animate__bounce"), 3000)
+  }
+
     if (!character) {
       return <div>Loading Character...</div>
   }
 
   return (
-    <Container fluid className="animate__animated animate__bounce">
+    <Container fluid>
       <Row className='border border-warning'>
         {currentLevel ? `Current Level: ${currentLevel} | Enemies Killed: ${enemiesKilled}` : "Initializing Dive Attempt..."}
       </Row>
@@ -456,7 +479,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
         </Col>
         <Col className='border border-primary align-self-center'>
               {currentEnemies ? currentEnemies.map(enemy => {
-                return <Row key={enemy.id} className='border border-primary' ><img src={enemy.enemy_archetype.image_url} alt={enemy.enemy_archetype.name} style={{width: "20%", marginLeft: "40%"}} onClick={targetSelect ? () => attackSingle(enemy) : null} ></img><h4 style={{width: "20%"}}>hp: {Math.round(enemy.hp * 100)/100}</h4></Row>
+                return <Row key={enemy.id} className='border border-primary' ><img id={enemy.id} src={enemy.enemy_archetype.image_url} alt={enemy.enemy_archetype.name} style={{width: "20%", marginLeft: "40%"}} onClick={targetSelect ? (e) => attackSingle(e, enemy) : null} ></img><h4 style={{width: "20%"}}>hp: {Math.round(enemy.hp * 100)/100}</h4></Row>
               }) : null}
         </Col>
       </Row>
@@ -464,14 +487,15 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
         {/* <Col className='border border-primary'>{currentEnemies.length > 0 ? <Row style={{paddingTop: "5px", paddingBottom: "5px"}}><Button style={{width: "25%", marginLeft: "5%"}} onClick={singleTarget} disabled={attackDisabled}>Attack Single</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={attackMultiple} disabled={attackDisabled}>Attack Multiple</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={defendAttack} disabled={attackDisabled}>Defend</Button></Row> : null}
         <Row><h4>hp: {Math.round(character.current_hp * 100)/100}</h4></Row>
         </Col> */}
-        <Col className='border border-primary'>{currentEnemies.length > 0 ? <Row style={{paddingTop: "5px", paddingBottom: "5px"}}><Button style={{width: "25%", marginLeft: "5%"}} onClick={singleTarget} disabled={attackDisabled}>Attack Single</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={() => console.log("click")} disabled={attackDisabled}>Attack Multiple</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={() => console.log("click")} disabled={attackDisabled}>Defend</Button></Row> : null}
+        <Col className='border border-primary'>{currentEnemies.length > 0 ? <Row style={{paddingTop: "5px", paddingBottom: "5px"}}><Button style={{width: "25%", marginLeft: "5%"}} onClick={singleTarget} disabled={attackDisabled}>Attack Single</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={() => console.log("click")} disabled={attackDisabled}>Attack Multiple</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={defend} disabled={attackDisabled}>Defend</Button></Row> : null}
         <Row><h4>hp: {Math.round(character.current_hp * 100)/100}</h4></Row>
         </Col>
-        <Col xs={2} className='border border-primary'>2 of 3 (wider)</Col>
+        <Col xs={2} className='border border-primary'>{lastAction ? <p style={{textAlign: "center"}}>{lastAction}</p> : null}</Col>
         <Col className='border border-primary'>
           <Link to={`/characters/${character.name}`} className="nav-link link-dark" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}><button className="btn btn-primary" style={{width: "100%"}}>Back to Character</button></Link>
           <Button style={{width: "50%", marginLeft: "25%", textAlign: "center", marginTop: "5px"}} onClick={handleShowGiveUp}>Give Up</Button>
           </Col>
+          <Button style={{width: "50%", marginLeft: "25%", textAlign: "center", marginTop: "5px"}} onClick={addAnimation}>animation test</Button>
       </Row>
 
       <Modal show={show} onHide={handleClose}>
