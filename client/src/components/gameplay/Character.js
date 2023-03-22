@@ -40,47 +40,17 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
     useEffect(() => {
         const interval = setInterval(() => {
             hunger.current += 1
-            if (Math.floor(Math.random() * 100) + 1 > 95) {
-                const targetPet = character.pets[(Math.floor(Math.random() * character.pets.length))]
-                if (targetPet.energy > 0) {
-                    const newEnergy = {energy: targetPet.energy - 1}
-                    fetch(`/pets/${targetPet.id}`, {
-                        method: "PATCH",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(newEnergy)
-                    })
-                    .then(resp => {
-                        if (resp.ok) {
-                            resp.json().then(newPet => {
-                                const newPetArray = character.pets.map(pet => {
-                                    if (pet.id === newPet.id) {
-                                        return newPet
-                                    }
-                                    else return pet
-                                })
-                                setCharacter({...character, pets: newPetArray})
-                            })
-                        }
-                        else {
-                            resp.json().then(error => {
-                                setErrors(error)
-                            }) 
-                        }
-                    })
-                }
-            }
-            if (hunger.current === 3) {
-                const targetPet = character.pets[(Math.floor(Math.random() * character.pets.length))]
-                    if (targetPet.loyalty > 0) {
-                        const newLoyalty = {loyalty: targetPet.loyalty - 1}
+            if (character.pets.length > 0) {
+                if (Math.floor(Math.random() * 100) + 1 > 95) {
+                    const targetPet = character.pets[(Math.floor(Math.random() * character.pets.length))]
+                    if (targetPet.energy > 0) {
+                        const newEnergy = {energy: targetPet.energy - 1}
                         fetch(`/pets/${targetPet.id}`, {
                             method: "PATCH",
                             headers: {
                                 "Content-Type": "application/json"
                             },
-                            body: JSON.stringify(newLoyalty)
+                            body: JSON.stringify(newEnergy)
                         })
                         .then(resp => {
                             if (resp.ok) {
@@ -101,7 +71,39 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
                             }
                         })
                     }
-                hunger.current = 0
+                }
+                if (hunger.current === 3) {
+                    const targetPet = character.pets[(Math.floor(Math.random() * character.pets.length))]
+                        if (targetPet.loyalty > 0) {
+                            const newLoyalty = {loyalty: targetPet.loyalty - 1}
+                            fetch(`/pets/${targetPet.id}`, {
+                                method: "PATCH",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify(newLoyalty)
+                            })
+                            .then(resp => {
+                                if (resp.ok) {
+                                    resp.json().then(newPet => {
+                                        const newPetArray = character.pets.map(pet => {
+                                            if (pet.id === newPet.id) {
+                                                return newPet
+                                            }
+                                            else return pet
+                                        })
+                                        setCharacter({...character, pets: newPetArray})
+                                    })
+                                }
+                                else {
+                                    resp.json().then(error => {
+                                        setErrors(error)
+                                    }) 
+                                }
+                            })
+                        }
+                    hunger.current = 0
+                }
             }
         }, 10000);
       

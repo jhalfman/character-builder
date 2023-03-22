@@ -25,7 +25,7 @@ const Navbar = ( { setCharacters } ) => {
                     <Link to="/characters" className="nav-link link-light" aria-current="page">Characters</Link>
                     <Link to="/pets" className="nav-link link-light">Pets</Link>
                     <Link to="/enemies" className="nav-link link-light">Enemies</Link>
-                    <Link to="/" className="nav-link disabled">Leaderboard</Link>
+                    <Link to="/leaderboard" className="nav-link link-light">Leaderboard</Link>
                 </div>
                 <div className="navbar-nav ms-auto">
                     <Link to="/newuser" className="nav-link link-light">Create Account</Link>

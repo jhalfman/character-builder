@@ -13,6 +13,7 @@ import EnemyTypes from './components/archetypes/EnemyTypes';
 import NewPet from './components/gameplay/NewPet';
 import EditCharacter from './components/gameplay/EditCharacter';
 import Dive from './components/gameplay/Dive';
+import Leaderboard from './components/leaderboard/Leaderboard';
 
 function App() {
   const {user} = useContext(UserContext);
@@ -47,6 +48,7 @@ function App() {
         <Route path='/pets' element={<PetTypes petTypes={petTypes}/>} />
         <Route path='/characters/:name/pets/create' element={<NewPet petTypes={petTypes} character={character}/>} />
         <Route path='/enemies' element={<EnemyTypes />} />
+        <Route path='/leaderboard' element={<Leaderboard />} />
         <Route path='/login' element={<Login />} />
         <Route path='/newuser' element={<NewUser />} />
       </Routes>
