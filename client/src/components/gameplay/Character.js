@@ -188,7 +188,7 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
             pettingTarget.current = pet.id
             petCount.current += 1
         }
-        else if (pettingTarget.current === pet.id && petCount.current < 9) {
+        else if (pettingTarget.current === pet.id && petCount.current < 4) {
             petCount.current += 1
         }
         else if (pettingTarget.current !== pet.id) {
@@ -227,6 +227,40 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
             else {
                 alert("Pet already loves you!")
             }
+        }
+    }
+    
+    function increasePetLevel(pet) {
+        if (character.money >= 1500) {
+            fetch(`/pets/${pet.id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({level: pet.level + 1, loyalty: 5})
+            })
+            .then(resp => {
+                if (resp.ok) {
+                    resp.json().then(newPet => {
+                        console.log(newPet)
+                        const newPetArray = character.pets.map(pet => {
+                            if (pet.id === newPet.id) {
+                                return newPet
+                            }
+                            else return pet
+                        })
+                        setCharacter({...character, pets: newPetArray, money: character.money - 1500})
+                    })
+                }
+                else {
+                    resp.json().then(error => {
+                        setErrors(error)
+                    }) 
+                }
+            })
+        }
+        else {
+            alert("You do not have enough funds")
         }
     }
     
@@ -269,12 +303,15 @@ if (!character) {
                     }
                     return (
                     <div key={pet.name} className='' style={{padding: "5%"}}>
-                        <h5 style={{textAlign: "center"}}>{pet.name}</h5>
+                        <h5 style={{textAlign: "center"}}>{pet.name} - (level {pet.level})</h5>
                         <img src={`${pet.pet_archetype.image_url}`} style={{width: "50%", marginLeft: "25%"}} alt={pet.name}></img>
-                        <div className=''>
+                        <div className='' style={{marginTop: "5px"}}>
                             <button type="button" className="btn btn-primary" style={{width: "25%", marginLeft: "6.25%"}} onClick={() => petPet(pet)}>Pet</button>
                             <button type="button" className="btn btn-primary" style={{width: "25%", marginLeft: "6.25%"}} onClick={() => feedPet(pet)}>Feed(-50)</button>
                             <button type="button" className="btn btn-primary" style={{width: "25%", marginLeft: "6.25%"}} onClick={() => {setPetForRelease(pet); handleShow()}}>Release</button>
+                        </div>
+                        <div>
+                        <button type="button" className="btn btn-warning" style={{width: "100%", marginTop: "5px"}} onClick={() => increasePetLevel(pet)}>Upgrade Pet Level (1500 credits)</button>
                         </div>
                         <div style={{marginTop: "5px"}}>                     
                             Hunger: {energyHearts}

@@ -14,6 +14,8 @@ class PetsController < ApplicationController
             if pet.energy < pet_params[:energy]
                 pet.character.update!(money: pet.character.money - 50)
             end
+        elsif pet_params.has_key?(:level)
+            pet.character.update!(money: pet.character.money - 1500)
         end
         pet.update!(pet_params)
         render json: pet, status: :ok
@@ -30,6 +32,6 @@ class PetsController < ApplicationController
     private
 
     def pet_params
-        params.permit(:name, :pet_archetype_id, :character_id, :modifier, :energy, :loyalty)
+        params.permit(:name, :pet_archetype_id, :character_id, :modifier, :energy, :loyalty, :level)
     end
 end

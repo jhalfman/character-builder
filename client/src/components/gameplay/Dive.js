@@ -300,15 +300,15 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
     let updatedEnemies = [...currentEnemies]
     let newOrder = [...attackOrder]
     currentEnemies.forEach(enemy => {
-      if (diveStats.attack < enemy.defense) {
+      if (diveStats.attack/2 < enemy.defense) {
         return null
       }
       else if (enemy.hp > (diveStats.attack/2 - enemy.defense)) {
-        const damage = enemy.hp - (diveStats.attack/2 - enemy.defense)
-        damageEnemy(enemy.id, damage)
+        const remainingHealth = enemy.hp - (diveStats.attack/2 - enemy.defense)
+        damageEnemy(enemy.id, remainingHealth)
         updatedEnemies = updatedEnemies.map(e => {
           if (e.id === enemy.id) {
-            return {...enemy, hp: damage}
+            return {...enemy, hp: remainingHealth}
           }
           else return e
         })
@@ -412,7 +412,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({money_reward: currentLevel * 100, experience_reward: enemiesKilled * 50, current: false})
+      body: JSON.stringify({money_reward: currentLevel * 100, experience_reward: enemiesKilled * 10, current: false})
     })
     .then(resp => {
       if (resp.ok) {
@@ -423,7 +423,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
                 return char
               }
               else {
-                return {...character, money: character.money + (currentLevel * 100), experience: character.experience + (enemiesKilled * 50)}
+                return {...character, money: character.money + (currentLevel * 100), experience: character.experience + (enemiesKilled * 10)}
               }
             })
             setCharacters(newCharacters)
@@ -525,7 +525,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
           <h4>Dive Stats</h4>
           <ul>
             <li>Money earned: {currentLevel * 100} credits</li>
-            <li>Experience gained: {enemiesKilled * 50}</li>
+            <li>Experience gained: {enemiesKilled * 10}</li>
             <li>Enemies defeated: {enemiesKilled}</li>
           </ul>
         </Modal.Body>
