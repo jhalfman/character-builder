@@ -296,52 +296,56 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
   }
 
 
-  // function attackMultiple() {
-  //   let updatedEnemies = [...currentEnemies]
-  //   currentEnemies.forEach(enemy => {
-  //     if (diveStats.attack < enemy.defense) {
-  //       return null
-  //     }
-  //     else if (enemy.hp > (diveStats.attack - enemy.defense)) {
-  //       const damage = enemy.hp - (diveStats.attack - enemy.defense)
-  //       damageEnemy(enemy.id, damage)
-  //       updatedEnemies = updatedEnemies.map(e => {
-  //         if (e.id === enemy.id) {
-  //           return {...enemy, hp: damage}
-  //         }
-  //         else return e
-  //       })
-  //     }
-  //     else {
-  //       killEnemy(enemy.id)
-  //       updatedEnemies = updatedEnemies.filter(e => e.id !== enemy.id)
-  //     }
-  //   })
-  //   setCurrentEnemies(updatedEnemies)
-  //   if (updatedEnemies.length === 0) {
-  //     setCurrentDirections(`${currentLevel} completed! Click to start level ${currentLevel + 1}`)
-  //     fetch(`/dives/${currentDive}`, {
-  //       method: "PATCH",
-  //       headers: {
-  //         "Content-Type": "application/json"
-  //       },
-  //       body: JSON.stringify({level_reached: currentLevel + 1})
-  //     })
-  //     .then(resp => {
-  //       if (resp.ok) {
-  //             setCurrentLevel(currentLevel + 1)
-  //       }
-  //       else {
-  //           resp.json().then(error => {
-  //               setErrors(error)
-  //           }) 
-  //       }
-  //     })
-  //   }
-  //   else {
-  //     enemyAttack(updatedEnemies, false)
-  //   }
-  // }
+  function multipleTarget() {
+    let updatedEnemies = [...currentEnemies]
+    let newOrder = [...attackOrder]
+    currentEnemies.forEach(enemy => {
+      if (diveStats.attack < enemy.defense) {
+        return null
+      }
+      else if (enemy.hp > (diveStats.attack/2 - enemy.defense)) {
+        const damage = enemy.hp - (diveStats.attack/2 - enemy.defense)
+        damageEnemy(enemy.id, damage)
+        updatedEnemies = updatedEnemies.map(e => {
+          if (e.id === enemy.id) {
+            return {...enemy, hp: damage}
+          }
+          else return e
+        })
+      }
+      else {
+        killEnemy(enemy.id)
+        updatedEnemies = updatedEnemies.filter(e => e.id !== enemy.id)
+        newOrder = newOrder.filter(character => character.id !== enemy.id)
+      }
+    })
+    setCurrentEnemies(updatedEnemies)
+    if (updatedEnemies.length === 0) {
+      setCurrentDirections(`${currentLevel} completed! Click to start level ${currentLevel + 1}`)
+      fetch(`/dives/${currentDive}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({level_reached: currentLevel + 1})
+      })
+      .then(resp => {
+        if (resp.ok) {
+              setCurrentLevel(currentLevel + 1)
+        }
+        else {
+            resp.json().then(error => {
+                setErrors(error)
+            }) 
+        }
+      })
+    }
+    else {
+      newOrder.push(newOrder.shift())
+      setAttackOrder(newOrder)
+      combatCycle(newOrder)
+    }
+  }
 
   function defend() {
     setDefending(true)
@@ -487,7 +491,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
         {/* <Col className='border border-primary'>{currentEnemies.length > 0 ? <Row style={{paddingTop: "5px", paddingBottom: "5px"}}><Button style={{width: "25%", marginLeft: "5%"}} onClick={singleTarget} disabled={attackDisabled}>Attack Single</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={attackMultiple} disabled={attackDisabled}>Attack Multiple</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={defendAttack} disabled={attackDisabled}>Defend</Button></Row> : null}
         <Row><h4>hp: {Math.round(character.current_hp * 100)/100}</h4></Row>
         </Col> */}
-        <Col className='border border-primary'>{currentEnemies.length > 0 ? <Row style={{paddingTop: "5px", paddingBottom: "5px"}}><Button style={{width: "25%", marginLeft: "5%"}} onClick={singleTarget} disabled={attackDisabled}>Attack Single</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={() => console.log("click")} disabled={attackDisabled}>Attack Multiple</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={defend} disabled={attackDisabled}>Defend</Button></Row> : null}
+        <Col className='border border-primary'>{currentEnemies.length > 0 ? <Row style={{paddingTop: "5px", paddingBottom: "5px"}}><Button style={{width: "25%", marginLeft: "5%"}} onClick={singleTarget} disabled={attackDisabled}>Attack Single</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={multipleTarget} disabled={attackDisabled}>Attack Multiple</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={defend} disabled={attackDisabled}>Defend</Button></Row> : null}
         <Row><h4>hp: {Math.round(character.current_hp * 100)/100}</h4></Row>
         </Col>
         <Col xs={2} className='border border-primary'>{lastAction ? <p style={{textAlign: "center"}}>{lastAction}</p> : null}</Col>
