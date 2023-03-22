@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -39,9 +39,10 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
   const [targetSelect, setTargetSelect] = useState(false)
   const [enemiesKilled, setEnemiesKilled] = useState(0)
   const [attackOrder, setAttackOrder] = useState(null)
-  const [attackDisabled, setAttackDisabled] = useState(true)
+  const [attackDisabled, setAttackDisabled] = useState(false)
   const [defending, setDefending] = useState(false)
   const [lastAction, setLastAction] = useState([])
+  const timerRef = useRef(null)
 
 
   useEffect(() => {
@@ -58,7 +59,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
               const newPetList = character.pets.filter(pet => pet.id === dive.pet_id_1 || pet.id === dive.pet_id_2)
               setCurrentPets(newPetList)
               dive.enemies.length > 0 ? setCurrentDirections("Choose an attack type") : setCurrentDirections("Click to generate Enemies")
-              updateDiveStats(newPetList)
+              updateDiveStats(newPetList, dive.enemies)
             })
         }
         else {
@@ -68,6 +69,8 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
         }
       })
     }
+
+    return () => {clearTimeout(timerRef.current)}
   }, [])
 
   function createDive() {
@@ -112,7 +115,6 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
     .then(resp => {
       if (resp.ok) {
           resp.json().then(enemies => {
-            console.log(enemies)
             const combatList = [{...diveStats}, ...enemies].sort(function(x, y) {return y.speed - x.speed})
             setAttackOrder(combatList)
             combatCycle(combatList)
@@ -129,7 +131,6 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
 
   //attackOrder is state; combatList is not
   function combatCycle(combatList, actionList) {
-    console.log(combatList)
     if (combatList[0].id === 0) {
       userAttacks();
     }
@@ -148,7 +149,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
     setCurrentDirections("Wait while enemies take their turn")
     setAttackDisabled(true)
     document.getElementById(combatList[0].id).classList.add("animate__animated", "animate__bounce")
-    setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       document.getElementById(combatList[0].id).classList.remove("animate__animated", "animate__bounce");
       enemyAttack(combatList, actionList)
     }, 2000)
@@ -211,7 +212,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
     }
   }
 
-  function updateDiveStats(pets) {
+  function updateDiveStats(pets, enemies) {
     let newAttack = character.attack
     let newDefense = character.defense
     let newSpeed = character.speed
@@ -229,6 +230,16 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
       luck: newLuck,
       id: 0
     })
+    if (enemies.length > 0) {
+      setAttackOrder([
+        {
+          attack: newAttack,
+          defense: newDefense,
+          speed: newSpeed,
+          luck: newLuck,
+          id: 0
+        }, ...enemies].sort(function(x, y) {return y.speed - x.speed}))
+    }
   }
 
   function singleTarget() {
@@ -369,7 +380,6 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
   }
   
   function enemyAttack(combatList, actionList) {
-    console.log(actionList)
     let returnDamage = 0;
     if (defending) {
       returnDamage = (combatList[0].attack - diveStats.defense)
@@ -378,7 +388,6 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
       returnDamage = (combatList[0].attack - diveStats.defense/5)
     }
     if (returnDamage > 0) {
-      console.log(combatList[0], returnDamage, "in fetch")
       fetch(`/characters/${character.id}`, {
         method: "PATCH",
         headers: {
@@ -514,8 +523,8 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
           return <p key={index} style={{textAlign: "center"}}>{action}</p>
         }) : null}</Col>
         <Col className='border border-primary'>
-          <Link to={`/characters/${character.name}`} className="nav-link link-dark" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}><button className="btn btn-primary" style={{width: "100%"}}>Back to Character</button></Link>
-          <Button variant="danger" style={{width: "50%", marginLeft: "25%", textAlign: "center", marginTop: "5px"}} onClick={handleShowGiveUp}>Give Up</Button>
+          <Link to={`/characters/${character.name}`} className="nav-link link-dark" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}><button className="btn btn-primary" style={{width: "100%"}} disabled={attackDisabled}>Back to Character</button></Link>
+          <Button variant="danger" style={{width: "50%", marginLeft: "25%", textAlign: "center", marginTop: "5px"}} onClick={handleShowGiveUp} disabled={attackDisabled}>Give Up</Button>
           </Col>
       </Row>
 
