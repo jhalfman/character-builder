@@ -3,10 +3,16 @@ class EnemiesController < ApplicationController
     def create
         numberOfEnemies = params[:numberOfEnemies]
         enemies = []
-        numberOfEnemies.times {
+        modifier = params[:currentLevel]/5 * 0.5 + 1
+        if params[:currentLevel] % 10 == 0
             enemy_archetype = EnemyArchetype.find(rand(1..6))
-            enemies << Enemy.create!(dive_id: params[:dive_id], enemy_archetype_id: enemy_archetype.id, hp: enemy_archetype.hp_modifier * 10, attack: enemy_archetype.attack_modifier * 10, defense: enemy_archetype.defense_modifier * 10, speed: enemy_archetype.speed_modifier * 10)
-        }
+            enemies << Enemy.create!(dive_id: params[:dive_id], enemy_archetype_id: enemy_archetype.id, hp: enemy_archetype.hp_modifier * 20 * modifier, attack: enemy_archetype.attack_modifier * 20 * modifier, defense: enemy_archetype.defense_modifier * 20 * modifier, speed: enemy_archetype.speed_modifier * 20 * modifier, boss: true)
+        else
+            numberOfEnemies.times {
+                enemy_archetype = EnemyArchetype.find(rand(1..6))
+                enemies << Enemy.create!(dive_id: params[:dive_id], enemy_archetype_id: enemy_archetype.id, hp: enemy_archetype.hp_modifier * 10 * modifier, attack: enemy_archetype.attack_modifier * 10 * modifier, defense: enemy_archetype.defense_modifier * 10 * modifier, speed: enemy_archetype.speed_modifier * 10 * modifier)
+            }
+        end
         render json: enemies, status: :created
     end
 

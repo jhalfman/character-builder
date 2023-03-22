@@ -4,11 +4,11 @@ import { useNavigate } from 'react-router-dom'
 const NewCharacter = ( {setCharacters, characters} ) => {
     const [newCharacterForm, setNewCharacterForm] = useState({
         name: "",
-        hp: 0,
-        attack: 0,
-        defense: 0,
-        speed: 0,
-        luck: 0,
+        hp: 1,
+        attack: 1,
+        defense: 1,
+        speed: 1,
+        luck: 1,
         avatar_url: ""
     })
     const [attributePoints, setAttributePoints] = useState(20)
@@ -97,8 +97,8 @@ const NewCharacter = ( {setCharacters, characters} ) => {
             }
         }
         else {
-            if (e.target.value < 0) {
-                alert("Cannot go below zero")
+            if (e.target.value < 1) {
+                alert("Cannot go below one")
             }
             else {
                 const updatedCharacterForm = {

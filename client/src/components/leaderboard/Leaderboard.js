@@ -37,8 +37,8 @@ const Leaderboard = () => {
                 <th scope="row">{index+1}</th>
                 <td>{dive.character.user.username}</td>
                 <td>{dive.character.name}</td>
-                <td>{dive.character.pets.filter(pet => pet.id === dive.pet_id_1)[0].name + " - " + dive.character.pets.filter(pet => pet.id === dive.pet_id_1)[0].pet_archetype.name}</td>
-                <td>{dive.character.pets.filter(pet => pet.id === dive.pet_id_2)[0].name + " - " + dive.character.pets.filter(pet => pet.id === dive.pet_id_2)[0].pet_archetype.name}</td>
+                <td>{dive.pet_id_1 ? dive.character.pets.filter(pet => pet.id === dive.pet_id_1)[0].name + " - " + dive.character.pets.filter(pet => pet.id === dive.pet_id_1)[0].pet_archetype.name : "none"}</td>
+                <td>{dive.pet_id_1 ? dive.character.pets.filter(pet => pet.id === dive.pet_id_2)[0].name + " - " + dive.character.pets.filter(pet => pet.id === dive.pet_id_2)[0].pet_archetype.name : "none"}</td>
                 <td>{dive.level_reached}</td>
                 <td>{dive.enemies_slain}</td>
                 <td>{dive.updated_at.split("T")[0]}</td>

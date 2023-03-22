@@ -25,16 +25,18 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
   const [showEnd, setShowEnd] = useState(false);
   const handleCloseEnd = () => setShowEnd(false);
   const handleShowEnd = () => setShowEnd(true);
-  const [turn, setTurn] = useState(true)
+  const [showGiveUp, setShowGiveUp] = useState(false);
+  const handleCloseGiveUp = () => setShowGiveUp(false);
+  const handleShowGiveUp = () => setShowGiveUp(true);
   const [diveStats, setDiveStats] = useState({
-    teamAttack: 0,
-    teamDefense: 0,
-    teamSpeed: 0,
-    teamLuck: 0
+    attack: 0,
+    defense: 0,
+    speed: 0,
+    luck: 0
   })
   const [targetSelect, setTargetSelect] = useState(false)
-  const [defending, setDefending] = useState(false)
   const [enemiesKilled, setEnemiesKilled] = useState(0)
+  const [attackOrder, setAttackOrder] = useState(null)
 
   useEffect(() => {
     if (character) {
@@ -46,9 +48,10 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
               setCurrentEnemies(dive.enemies)
               setCurrentDive(dive.id)
               setCurrentLevel(dive.level_reached)
+              setEnemiesKilled(dive.enemies_slain)
               const newPetList = character.pets.filter(pet => pet.id === dive.pet_id_1 || pet.id === dive.pet_id_2)
               setCurrentPets(newPetList)
-              setCurrentDirections("Choose an attack type")
+              dive.enemies.length > 0 ? setCurrentDirections("Choose an attack type") : setCurrentDirections("Click to generate Enemies")
               updateDiveStats(newPetList)
             })
         }
@@ -103,6 +106,9 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
       if (resp.ok) {
           resp.json().then(enemies => {
             console.log(enemies)
+            const combatList = [{...diveStats}, ...enemies].sort(function(x, y) {return y.speed - x.speed})
+            console.log(combatList)
+            // sort(function(x, y) {return x.id - y.id})
             setCurrentDirections("Choose an attack type")
             setCurrentEnemies(enemies)
           })
@@ -180,15 +186,15 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
     let newLuck = character.luck
 
     pets.forEach(pet => {
-      newAttack += pet.pet_archetype.attack * (pet.energy + pet.loyalty)
-      newDefense += pet.pet_archetype.defense * (pet.energy + pet.loyalty)
-      newSpeed += pet.pet_archetype.speed * (pet.energy + pet.loyalty)
+      newAttack += pet.pet_archetype.attack * (pet.level) * (pet.energy + pet.loyalty)
+      newDefense += pet.pet_archetype.defense* (pet.level) * (pet.energy + pet.loyalty)
+      newSpeed += pet.pet_archetype.speed* (pet.level) * (pet.energy + pet.loyalty)
     })
     setDiveStats({
-      teamAttack: newAttack,
-      teamDefense: newDefense,
-      teamSpeed: newSpeed,
-      teamLuck: newLuck
+      attack: newAttack,
+      defense: newDefense,
+      speed: newSpeed,
+      luck: newLuck
     })
   }
 
@@ -198,12 +204,12 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
   }
 
   function attackSingle(enemy) {
-    if (diveStats.teamAttack < enemy.defense) {
+    if (diveStats.attack < enemy.defense) {
       console.log("no damage")
       return null
     }
-    else if (enemy.hp > (diveStats.teamAttack - enemy.defense)) {
-      const damage = enemy.hp - (diveStats.teamAttack - enemy.defense)
+    else if (enemy.hp > (diveStats.attack - enemy.defense)) {
+      const damage = enemy.hp - (diveStats.attack - enemy.defense)
       damageEnemy(enemy.id, damage)
       const updatedEnemies = currentEnemies.map(e => {
         if (e.id === enemy.id) {
@@ -249,11 +255,11 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
   function attackMultiple() {
     let updatedEnemies = [...currentEnemies]
     currentEnemies.forEach(enemy => {
-      if (diveStats.teamAttack < enemy.defense) {
+      if (diveStats.attack < enemy.defense) {
         return null
       }
-      else if (enemy.hp > (diveStats.teamAttack - enemy.defense)) {
-        const damage = enemy.hp - (diveStats.teamAttack - enemy.defense)
+      else if (enemy.hp > (diveStats.attack - enemy.defense)) {
+        const damage = enemy.hp - (diveStats.attack - enemy.defense)
         damageEnemy(enemy.id, damage)
         updatedEnemies = updatedEnemies.map(e => {
           if (e.id === enemy.id) {
@@ -294,7 +300,6 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
   }
 
   function defendAttack() {
-    setDefending(true);
     enemyAttack(currentEnemies, true);
   }
   
@@ -302,16 +307,16 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
     let returnDamage = 0;
     enemyList.forEach(enemy => {
       if (defense) {
-        if (enemy.attack > diveStats.teamDefense) {
-          returnDamage += enemy.attack - diveStats.teamDefense
+        if (enemy.attack > diveStats.defense) {
+          returnDamage += enemy.attack - diveStats.defense
         }
         else {
           console.log(enemy, "Defense is too high")
         }
       }
       else {
-        if (enemy.attack > diveStats.teamDefense/5) {
-          returnDamage += enemy.attack - diveStats.teamDefense/5
+        if (enemy.attack > diveStats.defense/5) {
+          returnDamage += enemy.attack - diveStats.defense/5
         }
         else {
           console.log(enemy, "Defense is too high")
@@ -429,7 +434,10 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
         <Row><h4>hp: {Math.round(character.current_hp * 100)/100}</h4></Row>
         </Col>
         <Col xs={2} className='border border-primary'>2 of 3 (wider)</Col>
-        <Col className='border border-primary'><Link to={`/characters/${character.name}`} className="nav-link link-dark" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}><button className="btn btn-primary" style={{width: "100%"}}>Back to Character</button></Link></Col>
+        <Col className='border border-primary'>
+          <Link to={`/characters/${character.name}`} className="nav-link link-dark" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}><button className="btn btn-primary" style={{width: "100%"}}>Back to Character</button></Link>
+          <Button style={{width: "50%", marginLeft: "25%", textAlign: "center", marginTop: "5px"}} onClick={handleShowGiveUp}>Give Up</Button>
+          </Col>
       </Row>
 
       <Modal show={show} onHide={handleClose}>
@@ -462,6 +470,21 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
         <Modal.Footer>
           <Button variant="primary" onClick={() => navigate(`/characters/${character.name}`)}>
             Complete Dive
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showGiveUp} onHide={handleCloseGiveUp}>
+        <Modal.Header closeButton>
+          <Modal.Title>Give Up?</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to quit this run?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => {
+            completeDive()
+            handleShowEnd()
+          }}>
+            Give Up Dive
           </Button>
         </Modal.Footer>
       </Modal>
