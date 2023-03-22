@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   
   resources :enemies, only: [:create, :update, :destroy]
-  resources :dives, only: [:create, :update]
+  resources :dives, only: [:create, :update, :index]
   resources :pets, only: [:create, :destroy, :update]
   resources :enemy_archetypes, only: [:index]
   resources :pet_archetypes, only: [:index]
@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   resources :users, only: [:create, :destroy, :show]
 
   get "/characters/:name", to: "characters#show"
-  get "/dives/:character_id", to: "dives#index"
+  get "/dives/:character_id", to: "dives#show"
   post "/login", to: "sessions#create"
   delete "/logout", to: "sessions#destroy"
   # Routing logic: fallback requests for React Router.

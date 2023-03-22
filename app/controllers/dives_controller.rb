@@ -1,11 +1,12 @@
 class DivesController < ApplicationController
+    skip_before_action :authenticate_user, only: [:index]
 
     def create
         dive = Dive.create!(dive_params)
         render json: dive, status: :ok
     end
 
-    def index
+    def show
         dive = Dive.where(character_id: params[:character_id], current: true).first
         if dive
             render json: dive, include: ["enemies", "enemies.enemy_archetype"], status: :ok
@@ -22,6 +23,11 @@ class DivesController < ApplicationController
         end
         dive.update!(dive_params)
         render json: dive, status: :ok
+    end
+
+    def index 
+        dives = Dive.all.order(level_reached: :desc).first(10)
+        render json: dives, include: ["character", "character.user", "character.pets", "character.pets.pet_archetype"], status: :ok
     end
 
     private
