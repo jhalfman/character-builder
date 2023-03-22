@@ -31,6 +31,7 @@ const EditCharacter = ( {setCharacter, character, characters, setCharacters} ) =
                 luck: character.luck,
                 avatar_url: character.avatar_url
             })
+            setAttributePoints((20 + Math.trunc(character.experience/500) * 2) - (character.hp + character.defense + character.attack + character.speed + character.luck))
         }
     }, [character])
 
@@ -120,7 +121,7 @@ const EditCharacter = ( {setCharacter, character, characters, setCharacters} ) =
     <div className="bg-primary-subtle border border-primary">
         {errors ? errors.map(error => <div className="errors" key={error}>{error}</div>) : null}
       <form className="row" onSubmit={updateCharacter}>
-        <legend className="border-bottom border-primary" style={{textAlign: "center", width: "75%", marginLeft: "12.5%"}}>Create New Character</legend>
+        <legend className="border-bottom border-primary" style={{textAlign: "center", width: "75%", marginLeft: "12.5%"}}>Edit Character</legend>
         <div className="mb-3" style={{width: "33%", marginLeft: "33%"}}>
           <label htmlFor="name" className="form-label">Character Name</label>
           <input type="text" className="form-control" id="name" onChange={editNewCharacterForm} value={newCharacterForm.name}/>
