@@ -68,7 +68,7 @@ Rails.application.configure do
     user_name:            ENV["EMAIL"],
     password:             ENV["EMAILPASSWORD"],
     authentication:       'plain',
-    domain:               'render.com',
+    domain:               'https://pet-diver.onrender.com/',
     enable_starttls_auto: true
   }
 
