@@ -5,7 +5,7 @@ import { UserContext } from '../context/user.js';
 const UserHome = ( {characters, setCharacters} ) => {
     const {user} = useContext(UserContext);
     let navigate = useNavigate();
-console.log(user)
+
     useEffect(() => {
         if (!user) {
             navigate(`/login`)
