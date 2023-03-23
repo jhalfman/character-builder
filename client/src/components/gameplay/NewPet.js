@@ -67,7 +67,7 @@ const NewPet = ( {petTypes, character} ) => {
 
   return (
     <div>
-        {errors ? errors.map(error => <div className="errors" key={error}>{error}</div>) : null}
+        {errors ? errors.map(error => <div className="errors" key={error} style={{color: "red"}}>{error}</div>) : null}
         <h1 style={{textAlign: "center"}}>Buy New Pet</h1>
         <form className="row border border-success" style={{width: "75%", marginLeft: "12.5%"}} onSubmit={buyPet}>
             <div className="col-4 border border-warning">

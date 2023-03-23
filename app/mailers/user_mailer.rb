@@ -14,4 +14,11 @@ class UserMailer < ApplicationMailer
         @description = params[:description]
         mail(to: @email, subject: 'New Pet!')
     end
+
+    def character_creation_email
+        @email = params[:email]
+        @name = params[:name]
+        mail(to: @email, subect: 'New Character Creation!')
+    end
+
 end

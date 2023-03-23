@@ -2,6 +2,7 @@ class CharactersController < ApplicationController
 
     def create
         character = current_user.characters.create!(character_params)
+        UserMailer.with(name: character.name, email: current_user.email).character_creation_email.deliver_later
         render json: character, status: :ok
     end
 
