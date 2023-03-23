@@ -47,7 +47,7 @@ const UserHome = ( {characters, setCharacters} ) => {
           }): null}
         </tbody>
       </table>
-        <button type="button" className="btn btn-primary" style={{marginTop: "-20px"}} onClick={() => navigate(`/characters/create`)}>Create New Character</button>
+        <button type="button" className="btn btn-primary" style={{marginTop: "-20px"}} onClick={() => {console.log("hello4"); alert("what's happening"); navigate(`/characters/create`)}}>Create New Character</button>
     </div>
   )
 }
