@@ -36,16 +36,9 @@ function App() {
       .then(pets => setPetTypes(pets))
   }, [])
 
-  function envtest() {
-    fetch('envtest')
-    .then(resp => resp.json())
-    .then(data => console.log(data))
-  }
-  
   return (
     <div className="bg-primary-subtle border border-primary">
       <Navbar setCharacters={setCharacters}/>
-      <button onClick={envtest}>try</button>
       <Routes>
         <Route path='/characters' element={<UserHome characters={characters} setCharacters={setCharacters} />} />
         <Route path='/characters/:name' element={<Character setCharacters={setCharacters} characters={characters} character={character} setCharacter={setCharacter}/>} />

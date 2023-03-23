@@ -18,9 +18,4 @@ class SessionsController < ApplicationController
         head :no_content
     end
 
-    def env
-        envtest = ENV["SENDGRIDPASSWORD"]
-        render json: {env: envtest}, status: :ok
-    end
-
 end
