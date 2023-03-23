@@ -5,18 +5,15 @@ import { UserContext } from '../context/user.js';
 const UserHome = ( {characters, setCharacters} ) => {
     const {user} = useContext(UserContext);
     let navigate = useNavigate();
-
+console.log(user)
     useEffect(() => {
         if (!user) {
-          console.log("hello")
             navigate(`/login`)
         }
         else if (!characters) {
-          console.log("hello1")
             setCharacters(user.characters.sort(function(x, y) {return x.id - y.id}))
         }
         else {
-          console.log("hello2")
           return null
         }
         //eslint-disable-next-line
@@ -47,7 +44,7 @@ const UserHome = ( {characters, setCharacters} ) => {
           }): null}
         </tbody>
       </table>
-        <button type="button" className="btn btn-primary" style={{marginTop: "-20px"}} onClick={() => {console.log("hello4"); alert("what's happening"); navigate(`/characters/create`)}}>Create New Character</button>
+        <button type="button" className="btn btn-primary" style={{marginTop: "-20px"}} onClick={() => navigate(`/characters/create`)}>Create New Character</button>
     </div>
   )
 }
