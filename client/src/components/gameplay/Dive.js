@@ -440,7 +440,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({money_reward: (currentLevel - 1) * 100, experience_reward: enemiesKilled * 10, current: false})
+      body: JSON.stringify({money_reward: (currentLevel - 1) * 20, experience_reward: enemiesKilled * 10, current: false})
     })
     .then(resp => {
       if (resp.ok) {
@@ -451,7 +451,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
                 return char
               }
               else {
-                return {...character, money: character.money + (currentLevel * 100), experience: character.experience + (enemiesKilled * 10)}
+                return {...character, money: character.money + ((currentLevel - 1) * 20), experience: character.experience + (enemiesKilled * 10)}
               }
             })
             setCharacters(newCharacters)
@@ -521,9 +521,9 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
       </Row>
       <Row className="border border-primary align-items-end">
         <Col >
-        <br></br><br></br>
         <Row><h4 className="" style={{textAlign: "center"}}>hp: {Math.round(character.current_hp * 100)/100}</h4></Row>
-        {currentEnemies.length > 0 ? <Row style={{paddingTop: "5px", paddingBottom: "5px"}}><Button style={{width: "25%", marginLeft: "5%"}} onClick={singleTarget} disabled={attackDisabled}>Attack Single</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={() => {
+        <br></br><br></br>
+        {currentEnemies.length > 0 ? <Row className="border border-primary" style={{paddingTop: "5px", paddingBottom: "5px"}}><Button style={{width: "25%", marginLeft: "5%"}} onClick={singleTarget} disabled={attackDisabled}>Attack Single</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={() => {
           document.getElementById(character.name).classList.add("animate__animated", "animate__bounce")
           currentPets.map(pet => document.getElementById(pet.name).classList.add("animate__animated", "animate__pulse"))
           timerRef.current = setTimeout(() => {
@@ -542,7 +542,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
         }} disabled={attackDisabled}>Defend</Button></Row> : null}
         
         </Col>
-        <Col xs={2} className="border border-primary">{lastAction ? lastAction.map((action, index) => {
+        <Col xs={2} className="border border-primary" style={{overflowY: "auto", height: "150px"}} >{lastAction ? lastAction.map((action, index) => {
           return <p key={index} style={{textAlign: "center"}}>{action}</p>
         }) : null}</Col>
         <Col>
@@ -574,7 +574,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
         <Modal.Body>
           <h4>Dive Stats</h4>
           <ul>
-            <li>Money earned: {(currentLevel - 1) * 100} credits</li>
+            <li>Money earned: {(currentLevel - 1) * 20} credits</li>
             <li>Experience gained: {enemiesKilled * 10}</li>
             <li>Enemies defeated: {enemiesKilled}</li>
           </ul>

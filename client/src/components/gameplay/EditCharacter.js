@@ -79,7 +79,7 @@ const EditCharacter = ( {setCharacter, character, characters, setCharacters} ) =
         else if (newCharacterForm.name === "") {
             alert('Character name cannot be blank')
         }
-        else if (character.money < 500) {
+        else if (character.money < 100) {
             alert("Not enough funds to purchase new pet")
         }
         else {
@@ -155,7 +155,7 @@ const EditCharacter = ( {setCharacter, character, characters, setCharacters} ) =
             <div className="col-sm-3 mb-3"></div>
         </div>
         <div className="row border-top border-primary" style={{paddingTop: "10px", width: "75%", marginLeft: "12.5%"}}>
-        <p className="fs-5" style={{width: "25%", marginLeft: "27%"}}>Cost: 500 credits</p>
+        <p className="fs-5" style={{width: "25%", marginLeft: "27%"}}>Cost: 100 credits</p>
         <p className="fs-5" style={{width: "25%", marginLeft: "5%"}}>Available funds: {character ? character.money : null} credits</p>
         </div>
         <button type="button" className="btn btn-primary" style={{width: "50%", marginLeft: "25%"}} onClick={handleShow}>Update Character</button>
@@ -166,7 +166,7 @@ const EditCharacter = ( {setCharacter, character, characters, setCharacters} ) =
         <Modal.Header closeButton>
           <Modal.Title>Update Confirmation</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Are you sure you want to edit your character?  This will cost 500 credits.</Modal.Body>
+        <Modal.Body>Are you sure you want to edit your character?  This will cost 100 credits.</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Cancel
