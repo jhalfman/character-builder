@@ -113,7 +113,7 @@ const NewCharacter = ( {setCharacters, characters} ) => {
 
   return (
     <div className="bg-primary-subtle border border-primary">
-    {errors ? errors.map(error => <div className="errors" key={error}>{error}</div>) : null}
+    {errors ? errors.map(error => <div style={{color: "red"}} className="errors" key={error}>{error}</div>) : null}
       <form onSubmit={createCharacter} className="row">
         <legend className="border-bottom border-primary" style={{textAlign: "center", width: "75%", marginLeft: "12.5%"}}>Create New Character</legend>
         <div className="mb-3" style={{width: "33%", marginLeft: "33%"}}>

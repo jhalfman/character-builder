@@ -31,7 +31,7 @@ const EditCharacter = ( {setCharacter, character, characters, setCharacters} ) =
                 luck: character.luck,
                 avatar_url: character.avatar_url
             })
-            setAttributePoints((20 + Math.trunc(character.experience/500) * 2) - (character.hp + character.defense + character.attack + character.speed + character.luck))
+            setAttributePoints((25 + Math.trunc(character.experience/500) * 2) - (character.hp + character.defense + character.attack + character.speed + character.luck))
         }
     }, [character])
 

@@ -89,7 +89,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
             setEnemiesKilled(0)
             const newPetList = character.pets.filter(pet => pet.id === dive.pet_id_1 || pet.id === dive.pet_id_2)
             setCurrentPets(newPetList)
-            updateDiveStats(newPetList)
+            updateDiveStats(newPetList, [])
             handleClose();
           })
       }
@@ -117,8 +117,8 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
           resp.json().then(enemies => {
             const combatList = [{...diveStats}, ...enemies].sort(function(x, y) {return y.speed - x.speed})
             setAttackOrder(combatList)
-            combatCycle(combatList)
             setCurrentEnemies(enemies)
+            combatCycle(combatList)
           })
       }
       else {
@@ -129,7 +129,6 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
     })
   }
 
-  //attackOrder is state; combatList is not
   function combatCycle(combatList, actionList) {
     if (combatList[0].id === 0) {
       userAttacks();
@@ -152,7 +151,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
     timerRef.current = setTimeout(() => {
       document.getElementById(combatList[0].id).classList.remove("animate__animated", "animate__bounce");
       enemyAttack(combatList, actionList)
-    }, 2000)
+    }, 1000)
   }
 
   function damageEnemy(id, newHp) {
@@ -275,37 +274,41 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
       combatCycle(newOrder, actionList)
     }
     else {
-      actionList = [character.name + " defeated " + enemy.enemy_archetype.name + "!"]
-      setLastAction(actionList)
-      killEnemy(enemy.id)
-      const updatedEnemies = currentEnemies.filter(e => e.id !== enemy.id)
-      setCurrentEnemies(updatedEnemies)
-      if (updatedEnemies.length === 0) {
-        setCurrentDirections(`${currentLevel} completed! Click to start level ${currentLevel + 1}`)
-        fetch(`/dives/${currentDive}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({level_reached: currentLevel + 1})
-        })
-        .then(resp => {
-          if (resp.ok) {
-                setCurrentLevel(currentLevel + 1)
-          }
-          else {
-              resp.json().then(error => {
-                  setErrors(error)
-              }) 
-          }
-        })
-      }
-      else {
-        const newOrder = attackOrder.filter(character => character.id !== enemy.id)
-        newOrder.push(newOrder.shift())
-        setAttackOrder(newOrder)
-        combatCycle(newOrder, actionList)
-      }
+      document.getElementById(enemy.id).classList.add("animate__animated", "animate__bounceOut")
+      timerRef.current = setTimeout(() => {
+        document.getElementById(enemy.id).classList.remove("animate__animated", "animate__bounceOut");
+        actionList = [character.name + " defeated " + enemy.enemy_archetype.name + "!"]
+        setLastAction(actionList)
+        killEnemy(enemy.id)
+        const updatedEnemies = currentEnemies.filter(e => e.id !== enemy.id)
+        setCurrentEnemies(updatedEnemies)
+        if (updatedEnemies.length === 0) {
+          setCurrentDirections(`${currentLevel} completed! Click to start level ${currentLevel + 1}`)
+          fetch(`/dives/${currentDive}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({level_reached: currentLevel + 1})
+          })
+          .then(resp => {
+            if (resp.ok) {
+                  setCurrentLevel(currentLevel + 1)
+            }
+            else {
+                resp.json().then(error => {
+                    setErrors(error)
+                }) 
+            }
+          })
+        }
+        else {
+          const newOrder = attackOrder.filter(character => character.id !== enemy.id)
+          newOrder.push(newOrder.shift())
+          setAttackOrder(newOrder)
+          combatCycle(newOrder, actionList)
+        }
+      }, 1000)
     }
     setTargetSelect(false)
   }
@@ -379,7 +382,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
     combatCycle(newOrder, actionList)
   }
   
-  function enemyAttack(combatList, actionList) {
+  function enemyAttack(combatList, actionList=[]) {
     let returnDamage = 0;
     if (defending) {
       returnDamage = (combatList[0].attack - diveStats.defense)
@@ -437,7 +440,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({money_reward: currentLevel * 100, experience_reward: enemiesKilled * 10, current: false})
+      body: JSON.stringify({money_reward: (currentLevel - 1) * 100, experience_reward: enemiesKilled * 10, current: false})
     })
     .then(resp => {
       if (resp.ok) {
@@ -464,37 +467,33 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
     })
   }
 
-  function addAnimation(e) {
-    e.target.classList.add("animate__animated", "animate__bounce")
-    setTimeout(() => e.target.classList.remove("animate__animated", "animate__bounce"), 3000)
-  }
-
     if (!character) {
       return <div>Loading Character...</div>
   }
 
   return (
     <Container fluid>
-      <Row className='border border-warning'>
+      {errors ? errors.map(error => <div className="errors" key={error}>{error}</div>) : null}
+      <Row>
         {currentLevel ? `Current Level: ${currentLevel} | Enemies Killed: ${enemiesKilled}` : "Initializing Dive Attempt..."}
       </Row>
-      <Row>
-        <Col className='border border-primary'>
-          <Row className='border border-info'>
-            <Col xs={4} className='border border-dark align-self-center'>
+      <Row className='border border-primary'>
+        <Col>
+          <Row>
+            <Col xs={4} className='align-self-center'>
               <Form>
               {!currentDive ? character.pets ? character.pets.map(pet => {
                 return <Form.Check key={pet.name} disabled={(selectPetsForm.pet_id_1 && selectPetsForm.pet_id_2) ? (parseInt(selectPetsForm.pet_id_1) === pet.id || parseInt(selectPetsForm.pet_id_2) === pet.id) ? false : true : false} type={'checkbox'} id={pet.id} label={<img src={pet.pet_archetype.image_url} alt={pet.name} style={{width: "80%", marginLeft: "10%"}}></img>} value={pet.id} onChange={selectPet}/>
               }) : null : character.pets.map(pet => {
                 if (pet.id === parseInt(selectPetsForm.pet_id_1) || pet.id === parseInt(selectPetsForm.pet_id_2)) {
-                  return <img key={pet.name} src={pet.pet_archetype.image_url} alt={pet.name} style={{width: "80%", marginLeft: "10%"}}></img>
+                  return <img id={pet.name} key={pet.name} src={pet.pet_archetype.image_url} alt={pet.name} style={{width: "80%", marginLeft: "10%"}}></img>
                 }
                 else return null
               })}
               </Form>
             </Col>
-            <Col className='border border-primary align-self-center'>
-              <img src={character.avatar_url} alt={character.name} style={{width: "80%", marginLeft: "10%"}} key={character.name}></img>
+            <Col className='align-self-center'>
+              <img id={character.name} src={character.avatar_url} alt={character.name} style={{width: "80%", marginLeft: "10%"}} key={character.name}></img>
             </Col>
           </Row>
         </Col>
@@ -503,29 +502,54 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
             <p style={{textAlign: "center"}}>{currentDive ? currentDirections : "Choose companions and then click button for new adventure"}</p>
           </Row>
           <Row>
-            {currentDive ? currentEnemies.length !== 0 ? null : <Button variant="warning" className='border border-dark' onClick={generateEnemies}>Generate Enemies</Button> : <Button variant="warning" className='border border-dark' onClick={handleShow}>Begin Dive</Button>}
+            {currentDive ? currentEnemies.length !== 0 ? null : <Button variant="warning" className='' onClick={generateEnemies}>Generate Enemies</Button> : <Button variant="warning" className='' onClick={handleShow}>Begin Dive</Button>}
           </Row>
         </Col>
-        <Col className='border border-primary align-self-center'>
+        <Col className='align-self-center'>
               {currentEnemies ? currentEnemies.map(enemy => {
-                return <Row key={enemy.id} className='border border-primary' ><img id={enemy.id} src={enemy.enemy_archetype.image_url} alt={enemy.enemy_archetype.name} style={{width: "20%", marginLeft: "40%"}} onClick={targetSelect ? (e) => attackSingle(e, enemy) : null} ></img><h4 style={{width: "20%"}}>hp: {Math.round(enemy.hp * 100)/100}</h4></Row>
+                return <Row key={enemy.id}  ><img id={enemy.id} src={enemy.enemy_archetype.image_url} alt={enemy.enemy_archetype.name} style={{width: "20%", marginLeft: "40%"}} onClick={targetSelect ? (e) => {
+                  document.getElementById(character.name).classList.add("animate__animated", "animate__bounce")
+                  currentPets.map(pet => document.getElementById(pet.name).classList.add("animate__animated", "animate__pulse"))
+                  timerRef.current = setTimeout(() => {
+                    document.getElementById(character.name).classList.remove("animate__animated", "animate__bounce");
+                    currentPets.map(pet => document.getElementById(pet.name).classList.remove("animate__animated", "animate__pulse"))
+                    attackSingle(e, enemy)
+                  }, 1000)
+                } : null} ></img><h4 style={{width: "20%"}}>hp: {Math.round(enemy.hp * 100)/100}</h4></Row>
               }) : null}
         </Col>
       </Row>
-      <Row>
-        {/* <Col className='border border-primary'>{currentEnemies.length > 0 ? <Row style={{paddingTop: "5px", paddingBottom: "5px"}}><Button style={{width: "25%", marginLeft: "5%"}} onClick={singleTarget} disabled={attackDisabled}>Attack Single</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={attackMultiple} disabled={attackDisabled}>Attack Multiple</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={defendAttack} disabled={attackDisabled}>Defend</Button></Row> : null}
-        <Row><h4>hp: {Math.round(character.current_hp * 100)/100}</h4></Row>
-        </Col> */}
-        <Col className='border border-primary'>{currentEnemies.length > 0 ? <Row style={{paddingTop: "5px", paddingBottom: "5px"}}><Button style={{width: "25%", marginLeft: "5%"}} onClick={singleTarget} disabled={attackDisabled}>Attack Single</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={multipleTarget} disabled={attackDisabled}>Attack Multiple</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={defend} disabled={attackDisabled}>Defend</Button></Row> : null}
-        <Row><h4 className="border border-primary" style={{textAlign: "center"}}>hp: {Math.round(character.current_hp * 100)/100}</h4></Row>
+      <Row className="border border-primary align-items-end">
+        <Col >
+        <br></br><br></br>
+        <Row><h4 className="" style={{textAlign: "center"}}>hp: {Math.round(character.current_hp * 100)/100}</h4></Row>
+        {currentEnemies.length > 0 ? <Row style={{paddingTop: "5px", paddingBottom: "5px"}}><Button style={{width: "25%", marginLeft: "5%"}} onClick={singleTarget} disabled={attackDisabled}>Attack Single</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={() => {
+          document.getElementById(character.name).classList.add("animate__animated", "animate__bounce")
+          currentPets.map(pet => document.getElementById(pet.name).classList.add("animate__animated", "animate__pulse"))
+          timerRef.current = setTimeout(() => {
+            document.getElementById(character.name).classList.remove("animate__animated", "animate__bounce");
+            currentPets.map(pet => document.getElementById(pet.name).classList.remove("animate__animated", "animate__pulse"));
+            multipleTarget()
+          }, 1000)
+        }} disabled={attackDisabled}>Attack Multiple</Button><Button style={{width: "25%", marginLeft: "5%"}} onClick={() => {
+          document.getElementById(character.name).classList.add("animate__animated", "animate__tada")
+          currentPets.map(pet => document.getElementById(pet.name).classList.add("animate__animated", "animate__flip"))
+          timerRef.current = setTimeout(() => {
+            document.getElementById(character.name).classList.remove("animate__animated", "animate__tada");
+            currentPets.map(pet => document.getElementById(pet.name).classList.remove("animate__animated", "animate__flip"));
+            defend()
+          }, 1000)
+        }} disabled={attackDisabled}>Defend</Button></Row> : null}
+        
         </Col>
-        <Col xs={2} className='border border-primary'>{lastAction ? lastAction.map((action, index) => {
+        <Col xs={2} className="border border-primary">{lastAction ? lastAction.map((action, index) => {
           return <p key={index} style={{textAlign: "center"}}>{action}</p>
         }) : null}</Col>
-        <Col className='border border-primary'>
-          <Link to={`/characters/${character.name}`} className="nav-link link-dark" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}><button className="btn btn-primary" style={{width: "100%"}} disabled={attackDisabled}>Back to Character</button></Link>
+        <Col>
+          <br></br><br></br>
+          <Link to={`/characters/${character.name}`} className="nav-link link-dark" style={{width: "50%", marginLeft: "25%", textAlign: "center"}}><button className="btn btn-warning" style={{width: "100%"}} disabled={attackDisabled}>Back to Character</button></Link>
           <Button variant="danger" style={{width: "50%", marginLeft: "25%", textAlign: "center", marginTop: "5px"}} onClick={handleShowGiveUp} disabled={attackDisabled}>Give Up</Button>
-          </Col>
+        </Col>
       </Row>
 
       <Modal show={show} onHide={handleClose}>
@@ -550,7 +574,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
         <Modal.Body>
           <h4>Dive Stats</h4>
           <ul>
-            <li>Money earned: {currentLevel * 100} credits</li>
+            <li>Money earned: {(currentLevel - 1) * 100} credits</li>
             <li>Experience gained: {enemiesKilled * 10}</li>
             <li>Enemies defeated: {enemiesKilled}</li>
           </ul>

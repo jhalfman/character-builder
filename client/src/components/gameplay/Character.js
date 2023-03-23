@@ -286,7 +286,7 @@ if (!character) {
                         <li>Luck: {character.luck}</li>
                         <li>Current Experience: {character.experience}</li>
                         <li>Money: {character.money} credits</li>
-                        <li>Level: {character.experience/500 + 1}</li>
+                        <li>Level: {Math.round((character.experience/500 + 1) * 100)/100}</li>
                     </ul>
                 </div>
             </div>
