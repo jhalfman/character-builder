@@ -8,12 +8,15 @@ const UserHome = ( {characters, setCharacters} ) => {
 
     useEffect(() => {
         if (!user) {
+          console.log("hello")
             navigate(`/login`)
         }
         else if (!characters) {
+          console.log("hello1")
             setCharacters(user.characters.sort(function(x, y) {return x.id - y.id}))
         }
         else {
+          console.log("hello2")
           return null
         }
         //eslint-disable-next-line
