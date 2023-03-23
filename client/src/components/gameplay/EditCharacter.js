@@ -57,8 +57,8 @@ const EditCharacter = ( {setCharacter, character, characters, setCharacters} ) =
             }
         }
         else {
-            if (e.target.value < 0) {
-                alert("Cannot go below zero")
+            if (e.target.value < 1) {
+                alert("Cannot go below one")
             }
             else {
                 const updatedCharacterForm = {
