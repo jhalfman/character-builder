@@ -61,8 +61,7 @@ Rails.application.configure do
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
   config.action_mailer.delivery_method = :smtp
-  host = 'postgres://jordan_db_r94h_user:GGmepu1Pd8ePKdpi7TP6zCo6Ylqe5Xc7@dpg-cfltd1la499b93e0bic0-a/pet_diver_db'
-  config.action_mailer.default_url_options = { :host => 'postgres://jordan_db_r94h_user:GGmepu1Pd8ePKdpi7TP6zCo6Ylqe5Xc7@dpg-cfltd1la499b93e0bic0-a/pet_diver_db', protocol: 'http' }
+  config.action_mailer.default_url_options = { :host => ENV["RENDERHOST"], protocol: 'http' }
   config.action_mailer.smtp_settings = {
     address:              'smtp.gmail.com',
     port:                 587,
