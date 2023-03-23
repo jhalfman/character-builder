@@ -25,6 +25,9 @@ const NewUser = () => {
     if (newUserForm.password !== newUserForm.password_confirmation) {
       alert("password and confirmation must match")
     }
+    else if (newUserForm.username.length < 1) {
+      setErrors(["Please Enter a username"])
+    }
     else {
       fetch(`/users`, {
         method: "POST",
@@ -57,7 +60,7 @@ const NewUser = () => {
   
   return (
     <div className="bg-primary-subtle border border-primary">
-      {errors ? errors.map(error => <div className="errors" key={error}>{error}</div>) : null}
+      {errors ? errors.map(error => <div style={{color: "red"}} className="errors" key={error}>{error}</div>) : null}
       <form onSubmit={createNewUser} className="row">
         <legend style={{textAlign: "center"}}>Create a New Account</legend>
         <div className="form-floating mb-3" style={{width: "33%", marginLeft: "33%"}}>

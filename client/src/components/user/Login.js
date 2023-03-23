@@ -20,6 +20,7 @@ const Login = () => {
 
   function loginUser(e) {
     e.preventDefault();
+    if (loginForm.username.length > 0) {
       fetch(`/login`, {
         method: "POST",
         headers: {
@@ -39,12 +40,16 @@ const Login = () => {
               setErrors(error)
             }) 
         }
-    })
+      })
+    }
+    else {
+      setErrors(["Please Enter a username"])
+    }
   }
   
   return (
     <div className="bg-primary-subtle border border-primary">
-      {errors ? errors.map(error => <div className="errors" key={error}>{error}</div>) : null}
+      {errors ? errors.map(error => <div style={{color: "red"}} className="errors" key={error}>{error}</div>) : null}
       <form onSubmit={loginUser} className="row">
         <legend className="border-bottom border-primary" style={{textAlign: "center", width: "75%", marginLeft: "12.5%"}}>Log In to Existing Account</legend>
         <div className="form-floating mb-3" style={{width: "33%", marginLeft: "33%"}}>
