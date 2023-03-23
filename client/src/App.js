@@ -40,17 +40,17 @@ function App() {
     <div className="bg-primary-subtle border border-primary">
       <Navbar setCharacters={setCharacters}/>
       <Routes>
-        <Route path='/#/characters' element={<UserHome characters={characters} setCharacters={setCharacters} />} />
-        <Route path='/#/characters/:name' element={<Character setCharacters={setCharacters} characters={characters} character={character} setCharacter={setCharacter}/>} />
-        <Route path='/#/characters/:name/dive' element={<Dive character={character} setCharacter={setCharacter} setCharacters={setCharacters} characters={characters}/>} />
-        <Route path='/#/characters/:name/edit' element={<EditCharacter character={character} setCharacter={setCharacter} setCharacters={setCharacters} characters={characters}/>} />
-        <Route path='/#/characters/create' element={<NewCharacter setCharacters={setCharacters} characters={characters}/>} />
-        <Route path='/#/pets' element={<PetTypes petTypes={petTypes}/>} />
-        <Route path='/#/characters/:name/pets/create' element={<NewPet petTypes={petTypes} character={character}/>} />
-        <Route path='/#/enemies' element={<EnemyTypes />} />
-        <Route path='/#/leaderboard' element={<Leaderboard />} />
-        <Route path='/#/login' element={<Login />} />
-        <Route path='/#/newuser' element={<NewUser />} />
+        <Route path='/characters' element={<UserHome characters={characters} setCharacters={setCharacters} />} />
+        <Route path='/characters/:name' element={<Character setCharacters={setCharacters} characters={characters} character={character} setCharacter={setCharacter}/>} />
+        <Route path='/characters/:name/dive' element={<Dive character={character} setCharacter={setCharacter} setCharacters={setCharacters} characters={characters}/>} />
+        <Route path='/characters/:name/edit' element={<EditCharacter character={character} setCharacter={setCharacter} setCharacters={setCharacters} characters={characters}/>} />
+        <Route path='/characters/create' element={<NewCharacter setCharacters={setCharacters} characters={characters}/>} />
+        <Route path='/pets' element={<PetTypes petTypes={petTypes}/>} />
+        <Route path='/characters/:name/pets/create' element={<NewPet petTypes={petTypes} character={character}/>} />
+        <Route path='/enemies' element={<EnemyTypes />} />
+        <Route path='/leaderboard' element={<Leaderboard />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/newuser' element={<NewUser />} />
       </Routes>
     </div>
   );
