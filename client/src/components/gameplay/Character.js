@@ -18,9 +18,11 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
     const handleCloseDeleteCharacter = () => setShowDeleteCharacter(false);
     const handleShowDeleteCharacter = () => setShowDeleteCharacter(true);
     const [petForRelease, setPetForRelease] = useState(null)
+    console.log("base character load")
     
 
     useEffect(() => {
+        console.log("useeffect in character to fetch character@name")
         fetch(`/characters/${name}`)
         .then(resp => {
             if (resp.ok) {

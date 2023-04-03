@@ -21,8 +21,10 @@ function App() {
   const [characters, setCharacters] = useState(null)
   const [character, setCharacter] = useState(null)
   const [petTypes, setPetTypes] = useState(null)
+  console.log("base app load", user)
 
   useEffect(() => {
+    console.log("app use effect to check for user", user)
     if (!user) {
       navigate('/login')
     }

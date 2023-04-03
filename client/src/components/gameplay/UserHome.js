@@ -5,8 +5,10 @@ import { UserContext } from '../context/user.js';
 const UserHome = ( {characters, setCharacters} ) => {
     const {user} = useContext(UserContext);
     let navigate = useNavigate();
+    console.log("base userhome load", user)
 
     useEffect(() => {
+      console.log("inside userhome useeffect checking for user", user)
         if (!user) {
             navigate(`/login`)
         }

@@ -62,15 +62,11 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
               updateDiveStats(newPetList, dive.enemies)
             })
         }
-        else {
-            resp.json().then(noDiveError => {
-                console.log(noDiveError)
-            }) 
-        }
       })
     }
 
     return () => {clearTimeout(timerRef.current)}
+    //eslint-disable-next-line
   }, [])
 
   function createDive() {
@@ -574,7 +570,7 @@ const Dive = ( { character, setCharacter, setCharacters, characters }) => {
         <Modal.Body>
           <h4>Dive Stats</h4>
           <ul>
-            <li>Money earned: {(currentLevel - 1) * 20} credits</li>
+            <li>Money earned: {(!currentLevel) ? 0 : (currentLevel - 1) * 20} credits</li>
             <li>Experience gained: {enemiesKilled * 10}</li>
             <li>Enemies defeated: {enemiesKilled}</li>
           </ul>
