@@ -51,6 +51,7 @@ function App() {
         <Route path='/enemies' element={<EnemyTypes />} />
         <Route path='/leaderboard' element={<Leaderboard />} />
         <Route path='/login' element={<Login />} />
+        <Route path='*' element={<Login />} />
         <Route path='/newuser' element={<NewUser />} />
       </Routes>
     </div>
