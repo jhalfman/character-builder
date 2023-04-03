@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   resources :characters, only: [:create, :destroy, :update]
   resources :users, only: [:create, :destroy, :show]
 
-  get "/characters/:name", to: "characters#show"
+  get "/characters/character/:name", to: "characters#show"
   get "/dives/:character_id", to: "dives#show"
   post "/login", to: "sessions#create"
   delete "/logout", to: "sessions#destroy"

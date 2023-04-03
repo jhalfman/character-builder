@@ -35,24 +35,24 @@ Rails.application.configure do
 
   # config.action_mailer.perform_caching = false
   # config.action_mailer.delivery_method = :smtp
-  config.action_mailer.default_url_options = {host:'localhost', port: 3000}
-  config.action_mailer.smtp_settings = {
-    address:              'smtp.gmail.com',
-    port:                 587,
-    user_name:            ENV["EMAIL"],
-    password:             ENV["EMAILPASSWORD"],
-    authentication:       'plain',
-    enable_starttls_auto: true
-  }
-  # ActionMailer::Base.smtp_settings = {
-  #   :user_name => 'apikey', # This is the string literal 'apikey', NOT the ID of your API key
-  #   :password => ENV["SENDGRIDPASSWORD"], # This is the secret sendgrid API key which was issued during API key creation
-  #   :domain => 'yourdomain.com',
-  #   :address => 'smtp.sendgrid.net',
-  #   :port => 587,
-  #   :authentication => :plain,
-  #   :enable_starttls_auto => true
+  # config.action_mailer.default_url_options = {host:'localhost', port: 3000}
+  # config.action_mailer.smtp_settings = {
+  #   address:              'smtp.gmail.com',
+  #   port:                 587,
+  #   user_name:            ENV["EMAIL"],
+  #   password:             ENV["EMAILPASSWORD"],
+  #   authentication:       'plain',
+  #   enable_starttls_auto: true
   # }
+  ActionMailer::Base.smtp_settings = {
+    :user_name => 'apikey', # This is the string literal 'apikey', NOT the ID of your API key
+    :password => ENV["SENDGRIDPASSWORD"], # This is the secret sendgrid API key which was issued during API key creation
+    :domain => 'localhost:3000',
+    :address => 'smtp.sendgrid.net',
+    :port => 587,
+    :authentication => :plain,
+    :enable_starttls_auto => true
+  }
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log

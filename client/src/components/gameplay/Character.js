@@ -21,7 +21,7 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
     
 
     useEffect(() => {
-        fetch(`/characters/${name}`)
+        fetch(`/characters/character/${name}`)
         .then(resp => {
             if (resp.ok) {
                 resp.json().then(character => {
