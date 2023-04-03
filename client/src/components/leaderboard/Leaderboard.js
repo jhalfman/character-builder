@@ -31,7 +31,6 @@ const Leaderboard = () => {
         </thead>
         <tbody className="table-group-divider">
           {dives ? dives.map((dive, index) => {
-            console.log(dive)
             return (
               <tr key={dive.updated_at}>
                 <th scope="row">{index+1}</th>

@@ -18,11 +18,9 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
     const handleCloseDeleteCharacter = () => setShowDeleteCharacter(false);
     const handleShowDeleteCharacter = () => setShowDeleteCharacter(true);
     const [petForRelease, setPetForRelease] = useState(null)
-    console.log("base character load")
     
 
     useEffect(() => {
-        console.log("useeffect in character to fetch character@name")
         fetch(`/characters/${name}`)
         .then(resp => {
             if (resp.ok) {
@@ -32,7 +30,6 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
             }
             else {
                 resp.json().then(error => {
-                    console.log(error)
                     setErrors(error)
                 }) 
             }
@@ -244,7 +241,6 @@ const Character = ( {setCharacters, characters, character, setCharacter} ) => {
             .then(resp => {
                 if (resp.ok) {
                     resp.json().then(newPet => {
-                        console.log(newPet)
                         const newPetArray = character.pets.map(pet => {
                             if (pet.id === newPet.id) {
                                 return newPet
